@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign Up</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+</head>
+<body>
+    <div class="top-icons" id="topIcons">
+        <div class="menu-container">
+            <button class="menu-btn">&#8942;</button>
+            <div class="dropdown-menu">
+                <div class="menu-section">
+                    <a href="/" class="menu-heading-link"><h3>Home</h3></a>
+                    <div class="submenu">
+                        <a href="/#the-game" class="scroll-link">About the Game</a>
+                        <a href="/#how-to-play" class="scroll-link">How to Play</a>
+                        <a href="/#about-ai" class="scroll-link">About AI</a>
+                    </div>
+                </div>
+                <div class="menu-section">
+                    <h3><a href="/levels" class="menu-heading-link"><h3>Levels</h3></a>
+                    <div class="submenu">
+                        <a href="/levels/gcse">GCSE</a>
+                        <a href="/levels/alevel">A-Level</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <video autoplay muted loop playsinline class="bg-video">
+        <source src="{{ url_for('static', filename='videos/background-gif.mp4') }}" type="video/mp4" />
+    </video>
+    <div class="login-container">
+        <h2>Sign Up</h2>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flashes">
+                {% for category, message in messages %}
+                    <li class="flash {{ category }}">{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+        <form class="login-form" method="POST" action="/signup">
+            <input type="text" name="username" placeholder="Username" required />
+            <!-- Password -->
+            <div class="password-wrapper">
+                <input type="password" name="password" id="password1" placeholder="Password" required />
+                <button type="button" class="toggle-password" onclick="togglePassword('password1', 'eyeIcon1')">
+                    <img id="eyeIcon1" src="{{ url_for('static', filename='icons/shut-eye.svg') }}" alt="Show Password">
+                </button>
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="password-wrapper">
+                <input type="password" name="confirm_password" id="password2" placeholder="Confirm Password" required />
+                <button type="button" class="toggle-password" onclick="togglePassword('password2', 'eyeIcon2')">
+                    <img id="eyeIcon2" src="{{ url_for('static', filename='icons/shut-eye.svg') }}" alt="Show Password">
+                </button>
+            </div>
+            <button type="submit" class="submit-btn">Create</button>
+        </form>
+        <hr />
+        <p class="signup-text">
+            or <a href="/login">Log in</a>
+        </p>
+    </div>
+    <script>
+        function togglePassword(passwordId, eyeIconId) {
+            const passwordInput = document.getElementById(passwordId);
+            const eyeIcon = document.getElementById(eyeIconId);
+            const isVisible = passwordInput.type === "text";
+
+            passwordInput.type = isVisible ? "password" : "text";
+            eyeIcon.src = isVisible 
+                ? "{{ url_for('static', filename='icons/shut-eye.svg') }}" 
+                : "{{ url_for('static', filename='icons/eye.svg') }}";
+        }
+        function toggleMenu() {
+                document.getElementById("sideMenu").classList.toggle("show");
+            }
+            window.addEventListener('scroll', function () {
+                const headerHeight = document.querySelector('header').offsetHeight;
+                const topIcons = document.getElementById('topIcons');
+
+                if (window.pageYOffset > headerHeight) {
+                    topIcons.classList.add('scrolled');
+                } else {
+                    topIcons.classList.remove('scrolled');
+                }
+            });
+        document.addEventListener('DOMContentLoaded', () => {
+            const menuContainer = document.querySelector('.menu-container');
+            let hideTimeout;
+
+            menuContainer.addEventListener('mouseenter', () => {
+                clearTimeout(hideTimeout);
+                menuContainer.classList.add('show-menu');
+            });
+
+            menuContainer.addEventListener('mouseleave', () => {
+                hideTimeout = setTimeout(() => {
+                    menuContainer.classList.remove('show-menu');
+                }, 300); // 300ms delay to give users time to reach menu
+            });
+        });
+        document.addEventListener('DOMContentLoaded', function () {
+            const video = document.getElementById('mainVideo');
+            const source = document.getElementById('videoSource');
+
+            video.addEventListener('ended', function () {
+                // Swap to the looping video
+                source.src = "{{ url_for('static', filename='videos/background-loop.mp4') }}";
+                video.load();
+                video.loop = true;
+                video.play();
+            });
+        });
+    </script>       
+</body>
+</html>
