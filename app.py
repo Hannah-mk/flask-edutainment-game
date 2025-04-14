@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, flash, url_for
+from flask import Flask, render_template, request, redirect, flash, url_for, session
 from flask_mysqldb import MySQL
 from werkzeug.security import generate_password_hash, check_password_hash
 import MySQLdb.cursors
@@ -35,33 +35,22 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        print(password)
 
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
         cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
         user = cursor.fetchone()
 
-        # Debugging: Check the retrieved user data
-        print("Retrieved user:", user)
-
-        if user:
-            # Check if the password exists in the user data
-            if 'password_hash' not in user:
-                flash("Password field missing in user data.", "error")
-                return redirect(url_for('login'))
-            print((user['password_hash'], password))
-            # Check the password hash
+        if user and 'password_hash' in user:
             if check_password_hash(user['password_hash'], password):
-                flash("Login successful!", "success")
-                return redirect(url_for('home'))  # Redirect to home page on successful login
+                session['username'] = user['username']  # ✅ Store in session
+                return redirect(url_for('home'))
             else:
                 flash("Invalid username or password.", "error")
-                return redirect(url_for('login'))  # Always redirect to the login page
         else:
             flash("Invalid username or password.", "error")
-            return redirect(url_for('login'))
 
     return render_template('login.html')
+
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -90,6 +79,44 @@ def signup():
         return redirect(url_for('login'))
 
     return render_template('signup.html')
+
+@app.route('/profile')
+def profile():
+    if 'username' not in session:
+        flash("You must be logged in to view this page.", "error")
+        return redirect(url_for('login'))
+
+    username = session['username']
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute("SELECT profile_icon FROM users WHERE username = %s", (username,))
+    user = cursor.fetchone()
+
+    user_profile_icon = user['profile_icon'] if user else 'default.svg'
+
+    return render_template('profile.html', username=username, user_profile_icon=user_profile_icon)
+
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    session.pop('username', None)
+    return redirect(url_for('home'))
+
+@app.route('/update_icon', methods=['POST'])
+def update_icon():
+    if 'username' not in session:
+        flash("You must be logged in to change your profile icon.", "error")
+        return redirect(url_for('login'))
+
+    selected_icon = request.form['icon']
+    username = session['username']
+
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute("UPDATE users SET profile_icon = %s WHERE username = %s", (selected_icon, username))
+    mysql.connection.commit()
+
+    flash("Profile icon updated successfully!", "success")
+    return redirect(url_for('profile'))
+
 
 # Serve the main game file
 @app.route('/game_file')

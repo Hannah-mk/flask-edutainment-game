@@ -29,8 +29,8 @@
             </div>
         </div>
     </div>
-    <video autoplay muted loop playsinline class="bg-video">
-        <source src="{{ url_for('static', filename='videos/background-gif.mp4') }}" type="video/mp4" />
+    <video id="mainVideo" autoplay muted playsinline class="bg-video">
+        <source id="videoSource" src="{{ url_for('static', filename='videos/background-gif.mp4') }}" type="video/mp4" />
     </video>
     <div class="login-container">
         <h2>Sign Up</h2>
@@ -78,19 +78,16 @@
                 ? "{{ url_for('static', filename='icons/shut-eye.svg') }}" 
                 : "{{ url_for('static', filename='icons/eye.svg') }}";
         }
-        function toggleMenu() {
-                document.getElementById("sideMenu").classList.toggle("show");
-            }
-            window.addEventListener('scroll', function () {
-                const headerHeight = document.querySelector('header').offsetHeight;
-                const topIcons = document.getElementById('topIcons');
+        window.addEventListener('scroll', function () {
+            const headerHeight = document.querySelector('header').offsetHeight;
+            const topIcons = document.getElementById('topIcons');
 
-                if (window.pageYOffset > headerHeight) {
-                    topIcons.classList.add('scrolled');
-                } else {
-                    topIcons.classList.remove('scrolled');
-                }
-            });
+            if (window.pageYOffset > headerHeight) {
+                topIcons.classList.add('scrolled');
+            } else {
+                topIcons.classList.remove('scrolled');
+            }
+        });
         document.addEventListener('DOMContentLoaded', () => {
             const menuContainer = document.querySelector('.menu-container');
             let hideTimeout;

@@ -48,7 +48,7 @@ a.link:hover {
     right: 10px;
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 10px;
     padding: 10px 16px;
     z-index: 1000;
     border-bottom-left-radius: 20px;
@@ -96,6 +96,22 @@ a.link:hover {
     color: #4DB8FF;
 }
 /* Login button */
+.login-icon {
+    text-decoration: none; /* removes underline from <a> */
+}
+.login-icon .default-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background-color: #444;
+    color: white;
+    font-weight: bold;
+    border-radius: 50%;
+    font-size: 20px;
+    text-decoration: none; /* just in case */
+}
 .login-icon img {
     width: 24px;
     height: 24px;
@@ -305,3 +321,34 @@ a.link:hover {
 .flash.success {
     color: #0f5132;
 }  
+/* Logout button */
+.logout-form {
+    display: inline;
+    margin: 0;
+    padding: 0;
+    background: none;
+    border: none;
+}
+.logout-form button.logout-icon {
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+/* Profile icons */
+.profile-circle {
+    width: 22px;
+    height: 22px;
+    background-color: #444;
+    color: white;
+    font-size: 15px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+.profile-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}

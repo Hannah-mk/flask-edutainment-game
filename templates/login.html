@@ -29,9 +29,11 @@
             </div>
         </div>
     </div>
-    <video id="mainVideo" autoplay muted loop playsinline class="bg-video">
-        <source id="videoSource" src="{{ url_for('static', filename='videos/background-gif.mp4') }}" type="video/mp4" />
-    </video>
+    <header>
+        <video id="mainVideo" autoplay muted playsinline class="bg-video">
+            <source id="videoSource" src="{{ url_for('static', filename='videos/background-gif.mp4') }}" type="video/mp4" />
+        </video>
+    </header>
     <div class="login-container">
         <h2>Sign In</h2>
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -68,7 +70,7 @@
             eyeIcon.src = isVisible 
                 ? "{{ url_for('static', filename='icons/shut-eye.svg') }}" 
                 : "{{ url_for('static', filename='icons/eye.svg') }}";
-        }
+        };
         window.addEventListener('scroll', function () {
             const headerHeight = document.querySelector('header').offsetHeight;
             const topIcons = document.getElementById('topIcons');
@@ -89,6 +91,21 @@
                 video.load();
                 video.loop = true;
                 video.play();
+            });
+        });
+        document.addEventListener('DOMContentLoaded', () => {
+            const menuContainer = document.querySelector('.menu-container');
+            let hideTimeout;
+
+            menuContainer.addEventListener('mouseenter', () => {
+                clearTimeout(hideTimeout);
+                menuContainer.classList.add('show-menu');
+            });
+
+            menuContainer.addEventListener('mouseleave', () => {
+                hideTimeout = setTimeout(() => {
+                    menuContainer.classList.remove('show-menu');
+                }, 300);
             });
         });
     </script>

@@ -28,9 +28,15 @@
                 </div>
             </div>
         </div>
-        <a href="/login" class="login-icon" title="Login">
-            <img src="{{ url_for('static', filename='icons/login-icon.svg') }}" alt="Login" />
-        </a>
+        {% if session.get('username') %}
+            <a href="/profile" class="login-icon" title="{{ session['username'] }}'s Profile">
+                <div class="default-icon">{{ session['username'][0]|upper }}</div>
+            </a>        
+        {% else %}
+            <a href="/login" class="login-icon" title="Login">
+                <img src="{{ url_for('static', filename='icons/login-icon.svg') }}" alt="Login" />
+            </a>
+        {% endif %}
     </div>         
     <header>
         <video id="mainVideo" autoplay muted playsinline class="bg-video">
