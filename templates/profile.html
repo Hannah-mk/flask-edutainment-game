@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Your Profile</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='/css/styles.css') }}">
 </head>
 <body>
     <div class="top-icons" id="topIcons">
@@ -19,7 +19,7 @@
                     </div>
                 </div>
                 <div class="menu-section">
-                    <h3><a href="/levels" class="menu-heading-link"><h3>Levels</h3></a>
+                    <h3><a href="/levels" class="menu-heading-link">Levels</a></h3>
                     <div class="submenu">
                         <a href="/levels/gcse">GCSE</a>
                         <a href="/levels/alevel">A-Level</a>
@@ -33,35 +33,25 @@
             </button>
         </form>
     </div>
-    <main>
+
+    <main class="profile-main">
         <h1>Welcome, {{ username }}!</h1>
-        <p>This is your profile page.</p>
 
-        <h2>Current Profile Icon:</h2>
-        <!-- Display current profile icon -->
-        <div class="profile-circle">
-            <img src="{{ url_for('static', filename='icons/' + (user_profile_icon if user_profile_icon else 'default.svg')) }}" alt="Profile Icon" />
-        </div>
+        {% if user_profile_icon %}
+            <img src="{{ url_for('static', filename='pictures/' + user_profile_icon) }}" alt="Current Icon" class="current-icon">
+        {% endif %}
 
-        <h2>Select a Profile Icon</h2>
-        <form method="POST" action="/update_icon">
-            <label>
-                <input type="radio" name="icon" value="astronaut.svg" />
-                <img src="{{ url_for('static', filename='icons/astronaut.svg') }}" alt="Astronaut" />
+        <p>Select your profile icon:</p>
+
+        <form method="POST" action="/update_icon" class="icon-selection-form">
+            <label class="icon-option">
+                <input type="radio" name="icon" value="astronaut-icon.png" onchange="this.form.submit()" {% if user_profile_icon == 'astronaut-icon.png' %}checked{% endif %}>
+                <img src="{{ url_for('static', filename='pictures/astronaut-icon.png') }}" alt="Astronaut">
             </label>
-            <label>
-                <input type="radio" name="icon" value="rocket.svg" />
-                <img src="{{ url_for('static', filename='icons/rocket.svg') }}" alt="Rocket" />
+            <label class="icon-option">
+                <input type="radio" name="icon" value="robot-icon.png" onchange="this.form.submit()" {% if user_profile_icon == 'robot-icon.png' %}checked{% endif %}>
+                <img src="{{ url_for('static', filename='pictures/robot-icon.png') }}" alt="Robot">
             </label>
-            <label>
-                <input type="radio" name="icon" value="alien.svg" />
-                <img src="{{ url_for('static', filename='icons/alien.svg') }}" alt="Alien" />
-            </label>
-            <label>
-                <input type="radio" name="icon" value="default.svg" />
-                <img src="{{ url_for('static', filename='icons/default.svg') }}" alt="Default" />
-            </label>
-            <button type="submit">Save Icon</button>
         </form>
     </main>
 </body>

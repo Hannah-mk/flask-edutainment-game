@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Race Across the Galaxy</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='/css/styles.css') }}">
 </head>
 <body>
     <div class="top-icons" id="topIcons">
@@ -30,8 +30,12 @@
         </div>
         {% if session.get('username') %}
             <a href="/profile" class="login-icon" title="{{ session['username'] }}'s Profile">
-                <div class="default-icon">{{ session['username'][0]|upper }}</div>
-            </a>        
+                {% if session.get('profile_icon') %}
+                    <img src="{{ url_for('static', filename='pictures/' + session['profile_icon']) }}" alt="Profile" class="login-icon">
+                {% else %}
+                    <div class="default-icon">{{ session['username'][0]|upper }}</div>
+                {% endif %}
+            </a>
         {% else %}
             <a href="/login" class="login-icon" title="Login">
                 <img src="{{ url_for('static', filename='icons/login-icon.svg') }}" alt="Login" />

@@ -42,7 +42,8 @@ def login():
 
         if user and 'password_hash' in user:
             if check_password_hash(user['password_hash'], password):
-                session['username'] = user['username']  # ✅ Store in session
+                session['username'] = username
+                session['profile_icon'] = user.get('profile_icon', 'default.svg')  # Add this line
                 return redirect(url_for('home'))
             else:
                 flash("Invalid username or password.", "error")
@@ -76,6 +77,8 @@ def signup():
         cursor.execute("INSERT INTO users (username, password_hash) VALUES (%s, %s)", (username, hashed_password))
         mysql.connection.commit()
         flash("Account created successfully! You can now log in.", "success")
+        session['username'] = username 
+
         return redirect(url_for('login'))
 
     return render_template('signup.html')
@@ -104,17 +107,16 @@ def logout():
 @app.route('/update_icon', methods=['POST'])
 def update_icon():
     if 'username' not in session:
-        flash("You must be logged in to change your profile icon.", "error")
+        flash("You must be logged in to do that.", "error")
         return redirect(url_for('login'))
 
-    selected_icon = request.form['icon']
-    username = session['username']
-
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cursor.execute("UPDATE users SET profile_icon = %s WHERE username = %s", (selected_icon, username))
-    mysql.connection.commit()
-
-    flash("Profile icon updated successfully!", "success")
+    selected_icon = request.form.get('icon')
+    if selected_icon:
+        username = session['username']
+        cursor = mysql.connection.cursor()
+        cursor.execute("UPDATE users SET profile_icon = %s WHERE username = %s", (selected_icon, username))
+        mysql.connection.commit()
+        session['profile_icon'] = selected_icon  # <-- add this
     return redirect(url_for('profile'))
 
 
