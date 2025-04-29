@@ -6,6 +6,11 @@
   <title>Level 1</title>
 </head>
 <body>
-  <iframe src="{{ url_for('static', filename='game/levels/level1/build/web/index.html') }}" width="100%" height="600px" style="border:none;"></iframe>
-</body>
+    <iframe
+    src="{{ url_for('play_level', level='level1') }}"
+    width="100%"
+    height="600px"
+    style="border:none;"
+  ></iframe>
+  </body>
 </html>
