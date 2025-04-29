@@ -44,7 +44,7 @@ def alevel():
 @app.route('/play/<level>/')
 def play_level(level):
     # Path to the build/web folder for the requested level
-    build_dir = os.path.join(app.static_folder, 'game', 'levels', level, 'web')
+    build_dir = os.path.join(app.static_folder, 'game', 'levels', level, 'build', 'web')
     index_path = os.path.join(build_dir, 'index.html')
     if not os.path.exists(index_path):
         abort(404)
