@@ -53,7 +53,7 @@ def play_level(level):
 @app.route('/play/<level>/<path:filename>')
 def play_asset(level, filename):
     # Serve JS, WASM, images, APKs, etc.
-    build_dir = os.path.join(app.static_folder, 'game', 'levels', level, 'web')
+    build_dir = os.path.join(app.static_folder, 'game', 'levels', level, 'build', 'web')
     return send_from_directory(build_dir, filename)
 
 # --- Authentication Routes ---
