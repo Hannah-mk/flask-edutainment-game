@@ -1,25 +1,52 @@
-#!/bin/bash
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-# Define paths
-SRC_DIR="game_src"
-DEST_DIR="static/game"
-BUILD_DIR="build/web"
+# Ensure script runs from project root
+cd "$(dirname "$0")"
 
-echo "🚀 Starting Pygbag game build..."
+# Directories
+SRC_ROOT="$(pwd)/game_src"
+DEST_ROOT="$(pwd)/static/game/levels"
 
-# Step 1: Clean previous builds
-echo "🧹 Cleaning old game build..."
-rm -rf "$BUILD_DIR"
-rm -rf "$DEST_DIR"
+# Optional: build only specified level (pass folder name under game_src)
+if [[ $# -gt 0 ]]; then
+  LEVELS=("$1")
+else
+  # discover all subfolders with main.py
+  LEVELS=()
+  for d in "$SRC_ROOT"/*; do
+    if [[ -f "$d/main.py" ]]; then
+      LEVELS+=("$(basename "$d")")
+    fi
+  done
+fi
 
-# Step 2: Build using pygbag
-echo "🛠️ Building game from $SRC_DIR/main.py..."
-pygbag --build --archive "$SRC_DIR/main.py"
+echo "🚀 Building levels: ${LEVELS[*]}"
 
-# Step 3: Move build output to static/game
-echo "📦 Moving build to $DEST_DIR..."
-mkdir -p "$DEST_DIR"
-cp -r "$BUILD_DIR/"* "$DEST_DIR/"
+# Install pygbag if missing
+pip install --no-cache-dir pygbag
 
-# Step 4: Done
-echo "✅ Game build complete! View at /static/game/index.html"
+for LEVEL_NAME in "${LEVELS[@]}"; do
+  ENTRY="$SRC_ROOT/$LEVEL_NAME/main.py"
+
+  if [[ ! -f "$ENTRY" ]]; then
+    echo "⚠️  Skip '$LEVEL_NAME': main.py not found."
+    continue
+  fi
+
+  echo "🛠️  Building level: $LEVEL_NAME"
+
+  # Remove old output folder for this level only
+  rm -rf "$DEST_ROOT/$LEVEL_NAME"
+
+  # Build with pygbag directly into level folder
+  pygbag --build "$ENTRY" \
+         --output "$DEST_ROOT/$LEVEL_NAME/web" \
+         --skip-web-build=false
+
+  echo "✅ Level '$LEVEL_NAME' output → $DEST_ROOT/$LEVEL_NAME/web/index.html"
+done
+
+echo "🎉 All specified levels built successfully!"
+```

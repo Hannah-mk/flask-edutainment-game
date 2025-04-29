@@ -30,9 +30,9 @@ def gcse():
 def gcse1():
     return render_template('gcse1.html')
 
-@app.route('/levels/gcse/level2')
-def gcse2():
-    return render_template('gcse2.html')
+@app.route("/level2")
+def level2():
+    return render_template("gcse2.html")
 
 @app.route('/levels/alevel')
 def alevel():
