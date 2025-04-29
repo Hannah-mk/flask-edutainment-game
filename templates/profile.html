@@ -19,7 +19,7 @@
                     </div>
                 </div>
                 <div class="menu-section">
-                    <h3><a href="/levels" class="menu-heading-link">Levels</a></h3>
+                    <a href="/levels" class="menu-heading-link"><h3>Levels</h3></a>
                     <div class="submenu">
                         <a href="/levels/gcse">GCSE</a>
                         <a href="/levels/alevel">A-Level</a>
@@ -29,7 +29,7 @@
         </div>
         <form method="POST" action="/logout" class="logout-form">
             <button type="submit" class="logout-icon" title="Logout">
-                <img src="{{ url_for('static', filename='icons/logout.svg') }}" alt="Logout" />
+                <img src="{{ url_for('static', filename='icons/logout-icon.svg') }}" alt="Logout" />
             </button>
         </form>
     </div>
@@ -38,7 +38,7 @@
         <h1>Welcome, {{ username }}!</h1>
 
         {% if user_profile_icon %}
-            <img src="{{ url_for('static', filename='pictures/' + user_profile_icon) }}" alt="Current Icon" class="current-icon">
+            <img src="{{ url_for('static', filename='images/' + user_profile_icon) }}" alt="Current Icon" class="current-icon">
         {% endif %}
 
         <p>Select your profile icon:</p>
@@ -46,13 +46,42 @@
         <form method="POST" action="/update_icon" class="icon-selection-form">
             <label class="icon-option">
                 <input type="radio" name="icon" value="astronaut-icon.png" onchange="this.form.submit()" {% if user_profile_icon == 'astronaut-icon.png' %}checked{% endif %}>
-                <img src="{{ url_for('static', filename='pictures/astronaut-icon.png') }}" alt="Astronaut">
+                <img src="{{ url_for('static', filename='images/astronaut-icon.png') }}" alt="Astronaut">
             </label>
             <label class="icon-option">
                 <input type="radio" name="icon" value="robot-icon.png" onchange="this.form.submit()" {% if user_profile_icon == 'robot-icon.png' %}checked{% endif %}>
-                <img src="{{ url_for('static', filename='pictures/robot-icon.png') }}" alt="Robot">
+                <img src="{{ url_for('static', filename='images/robot-icon.png') }}" alt="Robot">
             </label>
         </form>
     </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const menuContainer = document.querySelector('.menu-container');
+            let hideTimeout;
+
+            menuContainer.addEventListener('mouseenter', () => {
+                clearTimeout(hideTimeout);
+                menuContainer.classList.add('show-menu');
+            });
+
+            menuContainer.addEventListener('mouseleave', () => {
+                hideTimeout = setTimeout(() => {
+                    menuContainer.classList.remove('show-menu');
+                }, 300); // 300ms delay to give users time to reach menu
+            });
+        });
+        document.querySelectorAll('.scroll-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+
+                // Optionally close the dropdown menu if open
+                document.querySelector('.menu-container').classList.remove('show-menu');
+            });
+        });
+    </script>
 </body>
 </html>

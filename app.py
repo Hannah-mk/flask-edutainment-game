@@ -26,6 +26,14 @@ def levels():
 def gcse():
     return render_template('gcse.html')
 
+@app.route('/levels/gcse/level1')
+def gcse1():
+    return render_template('gcse1.html')
+
+@app.route('/levels/gcse/level2')
+def gcse2():
+    return render_template('gcse2.html')
+
 @app.route('/levels/alevel')
 def alevel():
     return render_template('alevel.html')

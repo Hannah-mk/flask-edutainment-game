@@ -31,7 +31,7 @@
         {% if session.get('username') %}
             <a href="/profile" class="login-icon" title="{{ session['username'] }}'s Profile">
                 {% if session.get('profile_icon') %}
-                    <img src="{{ url_for('static', filename='pictures/' + session['profile_icon']) }}" alt="Profile" class="login-icon">
+                    <img src="{{ url_for('static', filename='images/' + session['profile_icon']) }}" alt="Profile" class="login-icon">
                 {% else %}
                     <div class="default-icon">{{ session['username'][0]|upper }}</div>
                 {% endif %}

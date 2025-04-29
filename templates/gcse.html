@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GCSE</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='/css/styles.css') }}">
+    <title>GCSE Levels</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
+    <!-- Top menu and login icons -->
     <div class="top-icons" id="topIcons">
         <div class="menu-container">
             <button class="menu-btn">&#8942;</button>
@@ -20,7 +21,7 @@
                     </div>
                 </div>
                 <div class="menu-section">
-                    <h3><a href="/levels" class="menu-heading-link"><h3>Levels</h3></a>
+                    <a href="/levels" class="menu-heading-link"><h3>Levels</h3></a>
                     <div class="submenu">
                         <a href="/levels/gcse">GCSE</a>
                         <a href="/levels/alevel">A-Level</a>
@@ -32,62 +33,25 @@
             <img src="{{ url_for('static', filename='icons/login-icon.svg') }}" alt="Login" />
         </a>
     </div>
-    <header>
-        <video id="mainVideo" autoplay muted playsinline class="bg-video">
-            <source id="videoSource" src="{{ url_for('static', filename='videos/background-gif.mp4') }}" type="video/mp4">
-        </video>
-        <h1>GCSE</h1>
-    </header>
+
+    <!-- Page title -->
+    <h1 class="page-title">GCSE</h1>
+
+    <!-- Level tiles -->
     <main>
-        <iframe 
-            src="{{ url_for('static', filename='game/build/web/index.html') }}" 
-            width="100%" 
-            height="600px"
-            style="border:none;"
-            title="Game">
-        </iframe>
+        <div class="level-tiles">
+            <!-- Link each tile to its own level page -->
+            <a class="tile" href="/levels/gcse/level1">
+                <img src="{{ url_for('static', filename='images/levels/level1_clip.png') }}" alt="Level 1 Preview">
+                <div class="play-overlay">Play Level 1</div>
+            </a>
+            <a class="tile" href="/level2">
+                <img src="{{ url_for('static', filename='images/levels/level2_clip.png') }}" alt="Level 2 Preview">
+                <div class="play-overlay">Play Level 2</div>
+            </a>
+            <!-- add more tiles as needed -->
+        </div>
     </main>
-    <script>
-        function toggleMenu() {
-            document.getElementById("sideMenu").classList.toggle("show");
-        }
-        window.addEventListener('scroll', function () {
-            const headerHeight = document.querySelector('header').offsetHeight;
-            const topIcons = document.getElementById('topIcons');
 
-            if (window.pageYOffset > headerHeight) {
-                topIcons.classList.add('scrolled');
-            } else {
-                topIcons.classList.remove('scrolled');
-            }
-        });
-        document.addEventListener('DOMContentLoaded', function () {
-            const video = document.getElementById('mainVideo');
-            const source = document.getElementById('videoSource');
-
-            video.addEventListener('ended', function () {
-                // Swap to the looping video
-                source.src = "{{ url_for('static', filename='videos/background-loop.mp4') }}";
-                video.load();
-                video.loop = true;
-                video.play();
-            });
-        });
-        document.addEventListener('DOMContentLoaded', () => {
-            const menuContainer = document.querySelector('.menu-container');
-            let hideTimeout;
-
-            menuContainer.addEventListener('mouseenter', () => {
-                clearTimeout(hideTimeout);
-                menuContainer.classList.add('show-menu');
-            });
-
-            menuContainer.addEventListener('mouseleave', () => {
-                hideTimeout = setTimeout(() => {
-                    menuContainer.classList.remove('show-menu');
-                }, 300); // 300ms delay to give users time to reach menu
-            });
-        });
-    </script>
 </body>
 </html>
