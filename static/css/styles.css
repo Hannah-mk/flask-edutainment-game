@@ -109,19 +109,19 @@ img {
     object-fit: contain; /* Ensures it keeps proportions */
 }
 .login-icon .default-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #4DB8FF; /* Choose a standout color */
+    color: white;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
-    background-color: #444;
-    color: white;
     font-weight: bold;
-    border-radius: 50%;
     font-size: 20px;
-    text-decoration: none; /* just in case */
-    align-items: center;
-    justify-content: center;
+    border: 2px solid white;
+    box-shadow: 0 0 4px rgba(0,0,0,0.3);
+    text-transform: uppercase;
 }
 .login-icon img {
     width: 32px;
@@ -522,4 +522,16 @@ input[type="radio"] {
 }
 .tile:hover .play-overlay {
     opacity: 1;
+}
+.friend-search {
+    margin-top: 2em;
+    padding: 1em;
+    border-top: 1px solid #ccc;
+}
+.friend-search input[type="text"] {
+    padding: 0.5em;
+    margin-right: 0.5em;
+}
+.friend-search button {
+    padding: 0.5em 1em;
 }

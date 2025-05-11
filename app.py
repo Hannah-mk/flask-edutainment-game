@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, flash, url_for, session, send_from_directory, abort
-from flask_mysqldb import MySQL
+from flask_mysql_connector import MySQL
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 import MySQLdb.cursors
 import os
 
@@ -14,6 +15,10 @@ app.config['MYSQL_PASSWORD'] = ''
 app.config['MYSQL_DB'] = 'db'
 
 mysql = MySQL(app)
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
 
 # --- Page Routes ---
 @app.route('/')
@@ -35,6 +40,10 @@ def gcse1():
 @app.route('/levels/gcse/level2')
 def level2():
     return render_template('gcse2.html')
+
+@app.route('/levels/gcse/level3')
+def level3():
+    return render_template('gcse3.html')
 
 @app.route('/levels/alevel')
 def alevel():
@@ -62,7 +71,8 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-
+        user_obj = User.get(username)
+        login_user(user_obj)
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
         cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
         user = cursor.fetchone()
@@ -140,6 +150,60 @@ def update_icon():
         mysql.connection.commit()
         session['profile_icon'] = selected_icon
     return redirect(url_for('profile'))
+
+@app.route('/search_user', methods=['POST'])
+def search_user():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+
+    search_query = request.form['search_username']
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute("SELECT username FROM users WHERE username LIKE %s", ('%' + search_query + '%',))
+    users = cursor.fetchall()
+
+    return render_template("profile.html", username=session['username'],
+                           user_profile_icon=session.get('profile_icon'),
+                           search_results=users,
+                           search_performed=True)
+
+@app.route('/add_friend', methods=['POST'])
+@login_required
+def add_friend():
+    friend_username = request.form['friend_username']
+    cursor = mysql.connection.cursor()
+    cursor.execute("INSERT INTO friends (user1, user2) VALUES (%s, %s)", (current_user.username, friend_username))
+    mysql.connection.commit()
+    return redirect(url_for('profile'))
+
+
+class User(UserMixin):
+    def __init__(self, id, username, profile_icon):
+        self.id = id
+        self.username = username
+        self.profile_icon = profile_icon
+
+    @staticmethod
+    def get(username):
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
+        user = cursor.fetchone()
+        if not user:
+            return None
+        return User(id=user['id'], username=user['username'], profile_icon=user.get('profile_icon', 'default.svg'))
+
+    @staticmethod
+    def get_by_id(user_id):
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute("SELECT * FROM users WHERE id = %s", (user_id,))
+        user = cursor.fetchone()
+        if not user:
+            return None
+        return User(id=user['id'], username=user['username'], profile_icon=user.get('profile_icon', 'default.svg'))
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.get_by_id(user_id)
+
 
 if __name__ == "__main__":
     app.run(debug=True)
