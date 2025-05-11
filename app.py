@@ -5,6 +5,8 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 import os
 
 app = Flask(__name__)
+import logging
+logging.warning("Flask app loaded via %s", __name__)
 app.secret_key = "1234"  # Needed for flash messages
 
 # --- MySQL Config ---
