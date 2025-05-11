@@ -2,7 +2,6 @@ from flask import Flask, render_template, request, redirect, flash, url_for, ses
 from flask_mysql_connector import MySQL
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-import MySQLdb.cursors
 import os
 
 app = Flask(__name__)
@@ -73,7 +72,7 @@ def login():
         password = request.form['password']
         user_obj = User.get(username)
         login_user(user_obj)
-        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor = mysql.connection.cursor(dictionary=True)
         cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
         user = cursor.fetchone()
 
@@ -96,7 +95,7 @@ def signup():
             flash("Passwords do not match.", "error")
             return redirect(url_for('signup'))
 
-        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor = mysql.connection.cursor(dictionary=True)
         cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
         if cursor.fetchone():
             flash("Username already taken. Please choose another.", "error")
@@ -120,7 +119,7 @@ def profile():
         return redirect(url_for('login'))
 
     username = session['username']
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor = mysql.connection.cursor(dictionary=True)
     cursor.execute("SELECT profile_icon FROM users WHERE username = %s", (username,))
     user = cursor.fetchone()
     icon = user['profile_icon'] if user else 'default.svg'
@@ -157,7 +156,7 @@ def search_user():
         return redirect(url_for('login'))
 
     search_query = request.form['search_username']
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor = mysql.connection.cursor(dictionary=True)
     cursor.execute("SELECT username FROM users WHERE username LIKE %s", ('%' + search_query + '%',))
     users = cursor.fetchall()
 
@@ -184,7 +183,7 @@ class User(UserMixin):
 
     @staticmethod
     def get(username):
-        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor = mysql.connection.cursor(dictionary=True)
         cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
         user = cursor.fetchone()
         if not user:
@@ -193,7 +192,7 @@ class User(UserMixin):
 
     @staticmethod
     def get_by_id(user_id):
-        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor = mysql.connection.cursor(dictionary=True)
         cursor.execute("SELECT * FROM users WHERE id = %s", (user_id,))
         user = cursor.fetchone()
         if not user:
