@@ -5,6 +5,10 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 import os
 
 app = Flask(__name__)
+@app.route("/ping")
+def ping():
+    return "Flask is running", 200
+
 import logging
 logging.warning("Flask app loaded via %s", __name__)
 app.secret_key = "1234"  # Needed for flash messages
@@ -27,12 +31,6 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 
 # --- Page Routes ---
-
-@app.route("/ping")
-def ping():
-    return "Flask is running", 200
-
-
 @app.route('/')
 def home():
     return render_template('home.html')
