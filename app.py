@@ -27,6 +27,12 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 
 # --- Page Routes ---
+
+@app.route("/ping")
+def ping():
+    return "Flask is running", 200
+
+
 @app.route('/')
 def home():
     return render_template('home.html')
