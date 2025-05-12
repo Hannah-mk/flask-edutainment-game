@@ -33,7 +33,7 @@
       <img src="{{ url_for('static', filename='icons/login-icon.svg') }}" alt="Login" />
     </a>
   </div>
-
+  <a href="/levels" class="back-btn">Back</a>
   <header>
     <h1>GCSE Levels</h1>
     <div class="level-tiles">
@@ -41,7 +41,7 @@
       <a class="tile" href="/levels/gcse/level{{ i }}">
         <img src="{{ url_for('static', filename='game_screenshots/GCSE/gcse' ~ i ~ '.png') }}" alt="Level {{ i }} Preview">
         <div class="play-overlay">Play Level {{ i }}</div>
-      </a>
+      </a>       
       {% endfor %}
     </div>
   </header>

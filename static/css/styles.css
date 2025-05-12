@@ -46,6 +46,7 @@ img {
     max-height: 60px;
     border-radius: 50%;
 }
+  
 /* Icons */
 .top-icons {
     position: fixed;
@@ -65,9 +66,9 @@ img {
     backdrop-filter: blur(6px);
     box-shadow: 0 10px 10px rgba(0, 0, 0, 0.3);
 }
-.top-icons:hover .dropdown-menu{
+/* .top-icons:hover .dropdown-menu{
     display: grid;
-}
+} */
 /* Menu button */
 .menu-btn {
     font-size: 24px;
@@ -162,7 +163,7 @@ img {
 .menu-container {
     position: relative;
 }
-.menu-container.hover .dropdown-menu {
+.menu-container.show-menu .dropdown-menu {
     opacity: 1;
     pointer-events: auto;
     display: grid;
@@ -413,16 +414,22 @@ input[type="radio"] {
     width: 100%;
 }
 
-.level-tiles {
-    display: grid;
-    grid-template-columns: repeat(28, 1fr); /* fixed tile size layout */
-    grid-auto-rows: 100px;
-    grid-auto-flow: row;
-    gap: 20px;
-    width: max-content; /* prevent shrinking */
-    padding: 2rem;
+.tile-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
 }
-
+  
+.level-tiles {
+display: grid;
+grid-template-columns: repeat(28, 1fr);
+grid-auto-rows: auto; /* auto adjusts for label height */
+gap: 40px 20px; /* increased vertical gap */
+width: max-content;
+padding: 2rem;
+}
 
 .tile img {
     width: 100%;
@@ -447,8 +454,12 @@ input[type="radio"] {
 }
 
 .tile:hover .play-overlay {
-    opacity: 1;
-}
+    opacity: 1; 
+    transform: scale(1.03);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  
+}  
 
 /* Square shape for narrow (1-column) tiles */
 .level-tiles a:nth-child(1),
@@ -457,7 +468,7 @@ input[type="radio"] {
 .level-tiles a:nth-child(8),
 .level-tiles a:nth-child(10){
     aspect-ratio: 1 / 1;
-    width: 100px;
+    width: 175px;
 }
 
 /* First row placements (spans add to 12 columns) */
@@ -475,25 +486,25 @@ input[type="radio"] {
 .level-tiles a:nth-child(11) { grid-column: span 7; grid-row: 2; }
 
 
-/* Back button on level pages */
 .back-btn {
     position: fixed;
     top: 10px;
     left: 20px;
-    padding: 10px 20px;
-    font-size: 1rem;
-    background: rgba(255, 255, 255, 0.2);
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 2px solid white;
+    font-weight: bold;
     text-decoration: none;
-    z-index: 1001;
-    transition: background-color 0.3s;
-}
-.back-btn:hover {
-    background: rgba(255, 255, 255, 0.4);
-}
+    z-index: 1002;
+    transition: background-color 0.3s ease;
+  }
+  
+  .back-btn:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+  }
+  
 
 /* Iframe container for game on level pages */
 .game-iframe {
