@@ -5,19 +5,8 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 import os
 
 app = Flask(__name__)
-@app.route("/ping")
-def ping():
-    return "Flask is running", 200
-
-import logging
-logging.warning("Flask app loaded via %s", __name__)
 app.secret_key = "1234"  # Needed for flash messages
 
-# --- MySQL Config ---
-# app.config['MYSQL_HOST'] = 'localhost'
-# app.config['MYSQL_USER'] = 'root'
-# app.config['MYSQL_PASSWORD'] = ''
-# app.config['MYSQL_DB'] = 'db'
 app.config['MYSQL_HOST'] = os.environ.get('MYSQL_HOST')
 app.config['MYSQL_USER'] = os.environ.get('MYSQL_USER')
 app.config['MYSQL_PASSWORD'] = os.environ.get('MYSQL_PASSWORD')
@@ -31,48 +20,113 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 
 # --- Page Routes ---
-@app.route('/')
+@app.route('/')  #Home page
 def home():
     return render_template('home.html')
 
-@app.route('/levels')
+@app.route('/levels') #Levels selection page
 def levels():
     return render_template('levels.html')
 
-@app.route('/levels/gcse')
+# GCSE Level Routes
+@app.route('/levels/gcse') #GCSE level selection page
 def gcse():
     return render_template('gcse.html')
 
-@app.route('/levels/gcse/level1')
-def gcse1():
-    return render_template('gcse1.html')
+@app.route('/levels/gcse/<level>')
+def show_gcse_level(level):
+    try:
+        return render_template(f'GCSE/{level}.html')
+    except:
+        abort(404)
 
-@app.route('/levels/gcse/level2')
-def level2():
-    return render_template('gcse2.html')
-
-@app.route('/levels/gcse/level3')
-def level3():
-    return render_template('gcse3.html')
-
-@app.route('/levels/alevel')
+# A-Level Level Routes
+@app.route('/levels/alevel') # A-Level level selection page
 def alevel():
     return render_template('alevel.html')
 
+@app.route('/levels/Alevel/<level>')
+def show_alevel_level(level):
+    try:
+        return render_template(f'Alevel/{level}.html')
+    except:
+        abort(404)
+
+# Minigame Routes
+@app.route('/levels/<level>')
+def show_minigame_level(level):
+    try:
+        return render_template(f'Minigame/{level}.html')
+    except:
+        abort(404)
+
+# Cutscene Routes
+@app.route('/levels/<level>')
+def show_cutscene(level):
+    try:
+        return render_template(f'Cutscene/{level}.html')
+    except:
+        abort(404)
+
 # --- Dynamic Game Routes ---
-@app.route('/play/<level>/')
-def play_level(level):
+# GCSE
+@app.route('/play gcse/<level>/')
+def play_gcse_level(level):
     # Path to the build/web folder for the requested level
-    build_dir = os.path.join(app.static_folder, 'game', 'levels', level, 'build', 'web')
+    build_dir = os.path.join(app.static_folder, 'game', 'GCSE', level, 'build', 'web')
     index_path = os.path.join(build_dir, 'index.html')
     if not os.path.exists(index_path):
         abort(404)
     return send_from_directory(build_dir, 'index.html')
 
-@app.route('/play/<level>/<path:filename>')
-def play_asset(level, filename):
-    # Serve JS, WASM, images, APKs, etc.
-    build_dir = os.path.join(app.static_folder, 'game', 'levels', level, 'build', 'web')
+@app.route('/play gcse/<level>/<path:filename>')
+def play_gcse_asset(level, filename):
+    build_dir = os.path.join(app.static_folder, 'game', 'GCSE', level, 'build', 'web')
+    return send_from_directory(build_dir, filename)
+
+#Alevel
+@app.route('/play alevel/<level>/')
+def play_alevel_level(level):
+    # Path to the build/web folder for the requested level
+    build_dir = os.path.join(app.static_folder, 'game', 'Alevel', level, 'build', 'web')
+    index_path = os.path.join(build_dir, 'index.html')
+    if not os.path.exists(index_path):
+        abort(404)
+    return send_from_directory(build_dir, 'index.html')
+
+@app.route('/play alevel/<level>/<path:filename>')
+def play_alevel_asset(level, filename):
+    build_dir = os.path.join(app.static_folder, 'game', 'Alevel', level, 'build', 'web')
+    return send_from_directory(build_dir, filename)
+
+# Minigames
+@app.route('/play minigame/<level>/')
+def play_minigame_level(level):
+    # Path to the build/web folder for the requested level
+    build_dir = os.path.join(app.static_folder, 'game', 'Minigame', level, 'build', 'web')
+    index_path = os.path.join(build_dir, 'index.html')
+    if not os.path.exists(index_path):
+        abort(404)
+    return send_from_directory(build_dir, 'index.html')
+
+@app.route('/play minigame/<level>/<path:filename>')
+def play_minigame_asset(level, filename):
+    build_dir = os.path.join(app.static_folder, 'game', 'Minigam', level, 'build', 'web')
+    return send_from_directory(build_dir, filename)
+
+#Cutscenes
+@app.route('/play cutscene/<level>/')
+def play_cutscene(level):
+    # Path to the build/web folder for the requested level
+    build_dir = os.path.join(app.static_folder, 'game', 'Cutscenes', level, 'build', 'web')
+    index_path = os.path.join(build_dir, 'index.html')
+    if not os.path.exists(index_path):
+        abort(404)
+    return send_from_directory(build_dir, 'index.html')
+
+@app.route('/play cutscene/<level>/<path:filename>')
+def play_cutscene_asset(level, filename):
+    build_dir = os.path.join(app.static_folder, 'game', 'Cutscenes', level, 'build', 'web')
     return send_from_directory(build_dir, filename)
 
 # --- Authentication Routes ---
