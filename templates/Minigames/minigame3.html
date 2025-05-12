@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GCSE - Level 1</title>
+  <title>Minigame 3</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
 </head>
 <body>
@@ -35,17 +35,17 @@
   </div>
 
   <!-- Back to GCSE menu -->
-  <a href="/levels/gcse" class="back-btn">Back to Levels</a>
+  <a href="/levels/minigames" class="back-btn">Back to Levels</a>
 
   <main>
     <iframe
-      src="{{ url_for('play_gcse_level', level='GCSE1') }}"
+      src="{{ url_for('play_minigame', level='Minigame3') }}"
       width="100%"
       height="600px"
       style="border:none;"
     ></iframe>
     <!-- NEXT LEVEL BUTTON -->
-  <a href="/levels/gcse/level2" class="next-btn" title="Next Level">Next →</a>
+  <a href="/levels/minigames/minigame4" class="next-btn" title="Next Level">Next →</a>
   </main>
 </body>
 </html>

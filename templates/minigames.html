@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ALevel Levels</title>
+  <title>Minigames</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body style="background-color: black;">
@@ -36,13 +36,13 @@
   </div>
   <a href="/levels" class="back-btn">Back</a>
   <header>
-    <h1>Alevel Levels</h1>
-    <div class="level-tiles">
-      {% for i in range(1, 12) %}
-      <a class="tile" href="/levels/alevel/level{{ i }}">
-        <img src="{{ url_for('static', filename='game_screenshots/Alevel/alevel' ~ i ~ '.png') }}" alt="Level {{ i }} Preview">
-        <div class="play-overlay">Play Level {{ i }}</div>
-      </a>
+    <h1>Minigames</h1>
+    <div class="minigame-tiles">
+      {% for i in range(1, 6) %}
+      <a class="tile" href="/levels/minigames/minigame{{ i }}">
+        <img src="{{ url_for('static', filename='game_screenshots/Minigame/minigame' ~ i ~ '.png') }}" alt="Minigame {{ i }} Preview">
+        <div class="play-overlay">Play Minigame {{ i }}</div>
+      </a>       
       {% endfor %}
     </div>
   </header>

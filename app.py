@@ -33,10 +33,10 @@ def levels():
 def gcse():
     return render_template('gcse.html')
 
-@app.route('/levels/gcse/<level>')
+@app.route('/levels/gcse/level<level>')
 def show_gcse_level(level):
     try:
-        return render_template(f'GCSE/{level}.html')
+        return render_template(f'/GCSE/gcse{level}.html')
     except:
         abort(404)
 
@@ -45,26 +45,51 @@ def show_gcse_level(level):
 def alevel():
     return render_template('alevel.html')
 
-@app.route('/levels/Alevel/<level>')
+@app.route('/levels/alevel/level<level>')
 def show_alevel_level(level):
     try:
-        return render_template(f'Alevel/{level}.html')
+        return render_template(f'/Alevel/alevel{level}.html')
     except:
         abort(404)
 
 # Minigame Routes
-@app.route('/levels/<level>')
+@app.route('/levels/minigames') # A-Level level selection page
+def minigames():
+    return render_template('minigames.html')
+
+@app.route('/levels/minigames/minigame<level>')
 def show_minigame_level(level):
     try:
-        return render_template(f'Minigame/{level}.html')
+        return render_template(f'/Minigames/minigame{level}.html')
+    except:
+        abort(404)
+
+@app.route('/levels/gcse/gcseminigame<level>')
+def show_gcse_minigame_level(level):
+    try:
+        return render_template(f'/GCSE/GCSE_Minigames/gcse_minigame{level}.html')
+    except:
+        abort(404)
+
+@app.route('/levels/alevel/alevelminigame<level>')
+def show_alevel_minigame_level(level):
+    try:
+        return render_template(f'/Alevel/Alevel_Minigames/Alevel_minigame{level}.html')
     except:
         abort(404)
 
 # Cutscene Routes
-@app.route('/levels/<level>')
-def show_cutscene(level):
+@app.route('/levels/GCSE/gcsecutscene<level>')
+def show_gcse_cutscene(level):
     try:
-        return render_template(f'Cutscene/{level}.html')
+        return render_template(f'/GCSE/GCSE_Cutscenes/gcse_cutscene{level}.html')
+    except:
+        abort(404)
+
+@app.route('/levels/Alevel/alevelcutscene<level>')
+def show_alevel_cutscene(level):
+    try:
+        return render_template(f'/Alevel/Alevel_Cutscenes/alevel_cutscene{level}.html')
     except:
         abort(404)
 
@@ -101,7 +126,7 @@ def play_alevel_asset(level, filename):
 
 # Minigames
 @app.route('/play minigame/<level>/')
-def play_minigame_level(level):
+def play_minigame(level):
     # Path to the build/web folder for the requested level
     build_dir = os.path.join(app.static_folder, 'game', 'Minigame', level, 'build', 'web')
     index_path = os.path.join(build_dir, 'index.html')
@@ -111,7 +136,7 @@ def play_minigame_level(level):
 
 @app.route('/play minigame/<level>/<path:filename>')
 def play_minigame_asset(level, filename):
-    build_dir = os.path.join(app.static_folder, 'game', 'Minigam', level, 'build', 'web')
+    build_dir = os.path.join(app.static_folder, 'game', 'Minigame', level, 'build', 'web')
     return send_from_directory(build_dir, filename)
 
 #Cutscenes

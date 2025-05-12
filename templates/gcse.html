@@ -25,6 +25,7 @@
           <div class="submenu">
             <a href="/levels/gcse">GCSE</a>
             <a href="/levels/alevel">A-Level</a>
+            <a href="/levels/minigames">Minigames</a>
           </div>
         </div>
       </div>
@@ -38,12 +39,16 @@
     <h1>GCSE Levels</h1>
     <div class="level-tiles">
       {% for i in range(1, 12) %}
-      <a class="tile" href="/levels/gcse/level{{ i }}">
-        <img src="{{ url_for('static', filename='game_screenshots/GCSE/gcse' ~ i ~ '.png') }}" alt="Level {{ i }} Preview">
-        <div class="play-overlay">Play Level {{ i }}</div>
-      </a>       
+        {% if i == 1 %}
+          <a class="tile" href="/levels/cutscene1">
+        {% else %}
+          <a class="tile" href="/levels/gcse/level{{ i }}">
+        {% endif %}
+          <img src="{{ url_for('static', filename='game_screenshots/GCSE/gcse' ~ i ~ '.png') }}" alt="Level {{ i }} Preview">
+          <div class="play-overlay">Play Level {{ i }}</div>
+        </a>
       {% endfor %}
-    </div>
+    </div>    
   </header>
 
   <script>
