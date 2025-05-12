@@ -74,19 +74,19 @@ def show_gcse_minigame_level(level):
 @app.route('/levels/alevel/alevelminigame<level>')
 def show_alevel_minigame_level(level):
     try:
-        return render_template(f'/Alevel/Alevel_Minigames/Alevel_minigame{level}.html')
+        return render_template(f'/Alevel/Alevel_Minigames/alevel_minigame{level}.html')
     except:
         abort(404)
 
 # Cutscene Routes
-@app.route('/levels/GCSE/gcsecutscene<level>')
+@app.route('/levels/gcse/gcsecutscene<level>')
 def show_gcse_cutscene(level):
     try:
         return render_template(f'/GCSE/GCSE_Cutscenes/gcse_cutscene{level}.html')
     except:
         abort(404)
 
-@app.route('/levels/Alevel/alevelcutscene<level>')
+@app.route('/levels/alevel/alevelcutscene<level>')
 def show_alevel_cutscene(level):
     try:
         return render_template(f'/Alevel/Alevel_Cutscenes/alevel_cutscene{level}.html')
