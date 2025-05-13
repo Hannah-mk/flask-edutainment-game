@@ -13,10 +13,10 @@ async def main():
     try:
         base_path = os.path.dirname(os.path.abspath(__file__))
 
-        control_room_bg = pygame.image.load(os.path.join(base_path, "assets", 'controlroomdark.jpg'))
+        control_room_bg = pygame.image.load(os.path.join(base_path, "assets", 'controlroomdark.png'))
         control_room_bg = pygame.transform.scale(control_room_bg, (WIDTH, HEIGHT))
 
-        zoomed_background = pygame.image.load(os.path.join(base_path, "assets", 'cr4.jpg'))
+        zoomed_background = pygame.image.load(os.path.join(base_path, "assets", 'cr4.png'))
         zoomed_background = pygame.transform.scale(zoomed_background, (WIDTH, HEIGHT))
 
         resistor_100k_image = pygame.image.load(os.path.join(base_path, "assets", '100kr.png'))
