@@ -153,7 +153,7 @@ async def main():
         total_R = sum(components[n]["resistance"] for n in placed)
         if len(placed) == 2 and abs(total_R - 600) <= 10:
             components["led"]["image"] = led_on_image
-            window.parent.postMessage("level_complete_gcse1", "*")
+            #window.parent.postMessage("level_complete_gcse1", "*")
 
         pygame.display.flip()
 
