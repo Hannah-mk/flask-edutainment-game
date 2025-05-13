@@ -41,12 +41,13 @@ a.link {
 a.link:hover {
     text-decoration: underline;
 }
-img {
-    max-width: 60px;
-    max-height: 60px;
-    border-radius: 50%;
-}
-  
+.login-icon img,
+.default-icon img,
+.icon-option img {
+  max-width: 60px;
+  max-height: 60px;
+  border-radius: 50%;
+}  
 /* Icons */
 .top-icons {
     position: fixed;
