@@ -1,6 +1,5 @@
-Flask==3.0.3
-Flask-MySQLdb>=1.0.1
+Flask==2.3.3
+Flask-MySQL-Connector==1.1.0
+Flask-Login==0.6.3
 Werkzeug>=2.0
-mysqlclient>=2.1
-pygbag
-pymunk
+gunicorn==21.2.0
