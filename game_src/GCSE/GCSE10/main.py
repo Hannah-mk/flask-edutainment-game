@@ -7,7 +7,7 @@ from js import window   # for the Pybag/browser handshake
 async def main():
     pygame.init()
 
-    # --- Canvas Setup & Handshake ---
+    # --- Canvas & Handshake ---
     SCREEN_WIDTH, SCREEN_HEIGHT = 800, 640
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption("Level 10 – Magnetic Puzzle")
@@ -24,9 +24,11 @@ async def main():
     # Colors
     WHITE = (255, 255, 255)
     GREEN = (0, 255, 0)
-    BLACK = (0, 0, 0)  # if you need to draw borders
+    BLACK = (0, 0, 0)
 
-    font = pygame.font.SysFont(None, 28)
+    text_color = WHITE
+
+    font = pygame.font.SysFont(None, 32)      # bumped up from 28
 
     # --- Load Assets ---
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -56,7 +58,7 @@ async def main():
         pygame.quit()
         sys.exit()
 
-    # scale tile & misc images
+    # Scale images
     img_low      = pygame.transform.scale(img_low,      (TILE_SIZE, TILE_SIZE))
     img_stable   = pygame.transform.scale(img_stable,   (TILE_SIZE, TILE_SIZE))
     img_strong   = pygame.transform.scale(img_strong,   (TILE_SIZE, TILE_SIZE))
@@ -67,14 +69,9 @@ async def main():
     source       = pygame.transform.scale(source,       (62, 62))
 
     tile_images = {
-        'low': img_low,
-        'stable': img_stable,
-        'strong': img_strong,
-        'unstable': img_unstable,
-        'reverse': img_reverse,
-        'wall': img_wall,
-        'weapon': weapon,
-        'source': source,
+        'low': img_low, 'stable': img_stable, 'strong': img_strong,
+        'unstable': img_unstable, 'reverse': img_reverse, 'wall': img_wall,
+        'weapon': weapon, 'source': source,
     }
 
     tile_types = {
@@ -88,7 +85,7 @@ async def main():
         'source':   {'B': 0},
     }
 
-    # --- Grid & Game State ---
+    # --- Build grid & locate endpoints ---
     grid_design = [
         'wwwwww',
         'wlrrbu',
@@ -97,31 +94,29 @@ async def main():
         'kkubbk',
         'rrkbbt'
     ]
-    char_map = {
-        'l': 'low', 'b': 'stable', 'k': 'strong',
-        'u': 'unstable', 'r': 'reverse', 'w': 'wall',
-        's': 'source', 't': 'weapon'
-    }
+    char_map = {'l':'low','b':'stable','k':'strong','u':'unstable','r':'reverse','w':'wall','s':'source','t':'weapon'}
 
     grid = []
     for y, row in enumerate(grid_design):
-        grid_row = []
+        row_tiles = []
         for x, c in enumerate(row):
             t = char_map[c]
-            grid_row.append(t)
+            row_tiles.append(t)
             if c == 's': CURRENT_SOURCE_POS = (x, y)
             if c == 't': TARGET_POS = (x, y)
-        grid.append(grid_row)
+        grid.append(row_tiles)
 
+    # --- State ---
     selected_path = []
     game_state    = 'start'
     showing_info  = False
     info_button   = pygame.Rect(40, 40, 30, 30)
     close_button  = pygame.Rect(700, 120, 30, 30)
 
-    # --- Helper Functions ---
-    def draw_text(txt, x, y, col=WHITE):
-        screen.blit(font.render(txt, True, col), (x, y))
+    # --- Helpers ---
+    def draw_text(txt, x, y, col=text_color):
+        surf = font.render(txt, True, col)
+        screen.blit(surf, (x, y))
 
     def calculate_force(path):
         total_B = 0
@@ -133,47 +128,46 @@ async def main():
         return total_B * CURRENT * L, total_B, L
 
     def draw_grid():
-        screen.blit(space_bg, (0, 0))
+        screen.blit(space_bg, (0,0))
         for y in range(GRID_HEIGHT):
             for x in range(GRID_WIDTH):
-                rect = pygame.Rect(
-                    GRID_START_X + x*TILE_SIZE,
-                    GRID_START_Y + y*TILE_SIZE,
-                    TILE_SIZE, TILE_SIZE
-                )
+                rect = pygame.Rect(GRID_START_X + x*TILE_SIZE,
+                                   GRID_START_Y + y*TILE_SIZE,
+                                   TILE_SIZE, TILE_SIZE)
                 tt = grid[y][x]
                 screen.blit(tile_images[tt], rect.topleft)
-                if tt not in ('weapon', 'source'):
+                if tt not in ('weapon','source'):
                     pygame.draw.rect(screen, BLACK, rect, 2)
-                if (x, y) == CURRENT_SOURCE_POS:
+                if (x,y) == CURRENT_SOURCE_POS:
                     draw_text("I = 2A", rect.x+5, rect.y+15)
-                elif (x, y) in selected_path:
+                elif (x,y) in selected_path:
                     pygame.draw.circle(screen, GREEN, rect.center, 10)
 
         F, B, L = calculate_force(selected_path)
-        draw_text(f"Path length limit = {MAX_PATH_LENGTH}", 10, 10)
-        draw_text(f"B = {B:.2f} T   F = {F:.2f} N", 10, 35)
+        draw_text(f"Path length ≤ {MAX_PATH_LENGTH}", 10, 10)
+        draw_text(f"B = {B:.2f} T   F = {F:.2f} N", 10, 40)
         draw_text(f"Target F = {REQUIRED_FORCE} N", 505, SCREEN_HEIGHT-130)
-        draw_text("Click tiles to build a path from the source", 10, 60)
+        draw_text("Click tiles to build a path from the source", 10, 70)
 
     def handle_grid_click(pos):
         nonlocal game_state
-        mx, my = pos
-        x, y = (mx - GRID_START_X)//TILE_SIZE, (my - GRID_START_Y)//TILE_SIZE
-        if not (0 <= x < GRID_WIDTH and 0 <= y < GRID_HEIGHT): return
-        if grid[y][x] == 'wall': return
+        mx,my = pos
+        x = (mx - GRID_START_X)//TILE_SIZE
+        y = (my - GRID_START_Y)//TILE_SIZE
+        if not (0<=x<GRID_WIDTH and 0<=y<GRID_HEIGHT): return
+        if grid[y][x]=='wall': return
         if not selected_path:
-            selected_path.append((x, y))
+            selected_path.append((x,y))
         else:
-            lx, ly = selected_path[-1]
-            if abs(x-lx)+abs(y-ly)==1 and (x, y) not in selected_path:
-                selected_path.append((x, y))
+            lx,ly = selected_path[-1]
+            if abs(x-lx)+abs(y-ly)==1 and (x,y) not in selected_path:
+                selected_path.append((x,y))
                 if len(selected_path) > MAX_PATH_LENGTH+2:
                     return
-                if (x, y) == TARGET_POS:
-                    F, _, _ = calculate_force(selected_path)
-                    if F == REQUIRED_FORCE:
-                        game_state = 'end'
+                if (x,y)==TARGET_POS:
+                    F,_,_ = calculate_force(selected_path)
+                    if F==REQUIRED_FORCE:
+                        game_state='end'
 
     # --- Main Loop ---
     running = True
@@ -182,40 +176,40 @@ async def main():
             if ev.type == pygame.QUIT:
                 running = False
             elif ev.type == pygame.MOUSEBUTTONDOWN:
-                if game_state == 'start':
+                if game_state=='start':
                     if showing_info and close_button.collidepoint(ev.pos):
-                        showing_info = False
+                        showing_info=False
                     elif info_button.collidepoint(ev.pos):
-                        showing_info = True
+                        showing_info=True
                     else:
-                        if rocket_img.get_rect(topleft=(280, 260)).collidepoint(ev.pos):
-                            game_state = 'grid'
-                elif game_state == 'grid':
+                        if rocket_img.get_rect(topleft=(280,260)).collidepoint(ev.pos):
+                            game_state='grid'
+                elif game_state=='grid':
                     handle_grid_click(ev.pos)
 
-        # render
-        if game_state == 'start':
-            screen.blit(space_bg, (0, 0))
-            screen.blit(rocket_img, (280, 240))
+        # render screens
+        if game_state=='start':
+            screen.blit(space_bg,(0,0))
+            screen.blit(rocket_img,(280,240))
             draw_text("Oh no! Our electromagnetic field is damaged!", 190, 170)
-            draw_text("Click the rocket to begin repairs", 250, 520)
+            draw_text("Click the rocket to begin repairs",     250, 520)
             pygame.draw.circle(screen, (180,180,255), info_button.center, 15)
             draw_text("i", info_button.x+10, info_button.y+3)
-        elif game_state == 'grid':
+        elif game_state=='grid':
             draw_grid()
-            screen.blit(legend, (490, 5))
+            screen.blit(legend,(490,5))
         else:  # 'end'
-            screen.blit(space_bg, (0, 0))
-            screen.blit(rocket_solenoid_img, (0, 0))
+            screen.blit(space_bg,(0,0))
+            screen.blit(rocket_solenoid_img,(0,0))
             draw_text("Weapon activated! Level complete.", 250, 70)
 
         if showing_info:
-            screen.blit(info_img, (70, 100))
-            pygame.draw.circle(screen, (255,100,100), close_button.center, 15)
+            screen.blit(info_img,(70,100))
+            pygame.draw.circle(screen,(255,100,100),close_button.center,15)
             draw_text("x", close_button.x+10, close_button.y+3)
 
         pygame.display.flip()
-        # yield and cap ~60 FPS so the browser can paint
+        # yield & cap frame rate so browser can paint
         await asyncio.sleep(1/60)
 
     pygame.quit()
