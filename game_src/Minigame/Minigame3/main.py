@@ -2,6 +2,7 @@ import pygame
 import asyncio
 import os
 
+
 # Initialize Pygame
 pygame.init()
 
