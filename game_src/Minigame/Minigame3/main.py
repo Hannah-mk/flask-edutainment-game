@@ -18,6 +18,8 @@ GRAY = (169, 169, 169)
 YELLOW = (255, 255, 0)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
+BUTTON_COLOR = (100, 100, 100)
+BUTTON_HOVER = (150, 150, 150)
 
 # Screen setup
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -60,6 +62,33 @@ wall_img = pygame.transform.scale(wall_img, (TILE, TILE))
 chatbot_img = pygame.transform.scale(chatbot_img, (TILE, TILE))
 hint1_img = pygame.transform.scale(hint1_img, (TILE, TILE))
 hint2_img = pygame.transform.scale(hint2_img, (TILE, TILE))
+
+class Button:
+    def __init__(self, x, y, width, height, text, color=BUTTON_COLOR, hover_color=BUTTON_HOVER):
+        self.rect = pygame.Rect(x, y, width, height)
+        self.text = text
+        self.color = color
+        self.hover_color = hover_color
+        self.is_hovered = False
+        self.font = pygame.font.SysFont(None, 36)
+        
+    def draw(self, surface):
+        color = self.hover_color if self.is_hovered else self.color
+        pygame.draw.rect(surface, color, self.rect)
+        pygame.draw.rect(surface, BLACK, self.rect, 2)
+        
+        text_surface = self.font.render(self.text, True, WHITE)
+        text_rect = text_surface.get_rect(center=self.rect.center)
+        surface.blit(text_surface, text_rect)
+        
+    def check_hover(self, pos):
+        self.is_hovered = self.rect.collidepoint(pos)
+        return self.is_hovered
+        
+    def is_clicked(self, pos, event):
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            return self.rect.collidepoint(pos)
+        return False
 
 # Player class
 class Player:
@@ -126,6 +155,10 @@ class GameState:
         self.chatbot = None
         self.player = Player(1 * TILE, 1 * TILE)
         self.running = True
+        self.game_over = False
+        self.victory = False
+        self.restart_button = Button(WIDTH//2 - 100, HEIGHT//2 + 50, 200, 50, "Restart")
+        self.continue_button = Button(WIDTH//2 - 100, HEIGHT//2 + 50, 200, 50, "Continue")
         self.load_room(0)
 
     def load_room(self, index):
@@ -150,32 +183,39 @@ class GameState:
                     self.hints2.append(pygame.Rect(x * TILE, y * TILE, TILE, TILE))
 
     async def game_loop(self):
-        game_over = False  # Add this flag
-        while self.running or game_over:  # Continue loop even if game is over
+        while True:
+            mouse_pos = pygame.mouse.get_pos()
+            
             # Handle events
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    self.running = False
-                    game_over = False  # Allow exit
+                    pygame.quit()
                     return
+                
+                if self.game_over:
+                    if self.victory:
+                        if self.continue_button.is_clicked(mouse_pos, event):
+                            pygame.quit()
+                            return
+                    else:
+                        if self.restart_button.is_clicked(mouse_pos, event):
+                            # Reset the game
+                            self.__init__()
+                            continue
 
             # Only update if game is still running
             if self.running:
                 self.update()
-        
+            
             # Draw everything
             self.draw()
-        
-            # Display game over message if needed
-            if not self.running and not game_over:
-                game_over = True
-                font = pygame.font.SysFont(None, 72)
-                if self.current_room_index >= len(mazes):
-                    text = font.render("You Win!", True, GREEN)
+            
+            # Check button hover states
+            if self.game_over:
+                if self.victory:
+                    self.continue_button.check_hover(mouse_pos)
                 else:
-                    text = font.render("Game Over!", True, RED)
-                screen.blit(text, (WIDTH//2 - text.get_width()//2, HEIGHT//2 - text.get_height()//2))
-                pygame.display.flip()
+                    self.restart_button.check_hover(mouse_pos)
             
             # Cap the frame rate and yield control
             pygame.display.flip()
@@ -202,9 +242,9 @@ class GameState:
         # Check for pitfalls
         for pitfall in self.pitfalls:
             if self.player.rect.colliderect(pitfall):
-                print("You fell into a pitfall!")
-                # Don't set running to False here - let the game show the message
                 self.running = False
+                self.game_over = True
+                self.victory = False
 
         # Check for level completion
         if self.goal is not None:
@@ -214,39 +254,59 @@ class GameState:
                     self.load_room(self.current_room_index)
                     self.player.rect.topleft = (1 * TILE, 1 * TILE)
                 else:
-                    print("You completed all rooms!")
-                    # Don't set running to False here - let the game show the message
                     self.running = False
+                    self.game_over = True
+                    self.victory = True
         elif self.chatbot is not None and self.player.rect.colliderect(self.chatbot.rect):
-            print("You completed all rooms!")
-            # Don't set running to False here - let the game show the message
             self.running = False
+            self.game_over = True
+            self.victory = True
 
     def draw(self):
         screen.fill(BLACK)
-       
-        # Draw walls
-        for wall in self.walls:
-            screen.blit(wall_img, (wall.x, wall.y))
-       
-        # Draw collectibles
-        for coin in self.coins:
-            screen.blit(coin_img, (coin.x, coin.y))
-        for hint1 in self.hints1:
-            screen.blit(hint1_img, (hint1.x, hint1.y))
-        for hint2 in self.hints2:
-            screen.blit(hint2_img, (hint2.x, hint2.y))
-        for pitfall in self.pitfalls:
-            screen.blit(pitfall_img, (pitfall.x, pitfall.y))
-       
-        # Draw player
-        self.player.draw(screen)
-       
-        # Draw goal or chatbot
-        if self.goal is not None and self.chatbot is None:
-            self.goal.draw(screen)
-        elif self.chatbot is not None:
-            self.chatbot.draw(screen)
+        
+        if not self.game_over:
+            # Draw walls
+            for wall in self.walls:
+                screen.blit(wall_img, (wall.x, wall.y))
+            
+            # Draw collectibles
+            for coin in self.coins:
+                screen.blit(coin_img, (coin.x, coin.y))
+            for hint1 in self.hints1:
+                screen.blit(hint1_img, (hint1.x, hint1.y))
+            for hint2 in self.hints2:
+                screen.blit(hint2_img, (hint2.x, hint2.y))
+            for pitfall in self.pitfalls:
+                screen.blit(pitfall_img, (pitfall.x, pitfall.y))
+            
+            # Draw player
+            self.player.draw(screen)
+            
+            # Draw goal or chatbot
+            if self.goal is not None and self.chatbot is None:
+                self.goal.draw(screen)
+            elif self.chatbot is not None:
+                self.chatbot.draw(screen)
+        else:
+            # Draw game over/victory screen
+            font_large = pygame.font.SysFont(None, 72)
+            font_small = pygame.font.SysFont(None, 36)
+            
+            if self.victory:
+                text = font_large.render("You Win!", True, GREEN)
+                instruction = font_small.render("You've reached the chatbot!", True, WHITE)
+            else:
+                text = font_large.render("Game Over!", True, RED)
+                instruction = font_small.render("You fell into a pitfall!", True, WHITE)
+            
+            screen.blit(text, (WIDTH//2 - text.get_width()//2, HEIGHT//2 - 100))
+            screen.blit(instruction, (WIDTH//2 - instruction.get_width()//2, HEIGHT//2 - 40))
+            
+            if self.victory:
+                self.continue_button.draw(screen)
+            else:
+                self.restart_button.draw(screen)
 
 # Define mazes for three rooms
 mazes = [
@@ -313,8 +373,6 @@ mazes = [
 async def main():
     game = GameState()
     await game.game_loop()
-    pygame.quit()
 
 if __name__ == "__main__":
     asyncio.run(main())
-
