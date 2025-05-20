@@ -2,7 +2,7 @@ import asyncio
 import pygame
 import sys
 import os
-from js import window   # <-- bring in the browser handshake
+from js import window   # for the Pybag/browser handshake
 
 async def main():
     pygame.init()
@@ -11,13 +11,13 @@ async def main():
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Choose Your Planet")
 
-    # tell the loader we’re alive
+    # notify loader that we're initialized
     window.parent.postMessage("loaded", "*")
 
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     ASSET_DIR = os.path.join(BASE_DIR, "assets")
 
-    # load & scale
+    # load & scale assets
     background = pygame.image.load(os.path.join(ASSET_DIR, 'deepspace.png'))
     background = pygame.transform.scale(background, (WIDTH, HEIGHT))
 
@@ -85,7 +85,6 @@ async def main():
     }
 
     matched = {name: False for name in planets}
-
     display_info = None
     selected_planet = None
     dragging = None
@@ -124,11 +123,11 @@ async def main():
 
     def handle_mouse_down(pos):
         nonlocal dragging, selected_planet
-        # text drag?
+        # start dragging text?
         for name, (x, y) in text_positions.items():
             if x <= pos[0] <= x + 100 and y <= pos[1] <= y + 30:
                 dragging = name
-        # planet click?
+        # click planet?
         for name, (x, y) in planet_positions.items():
             w, h = planets[name].get_size()
             if x <= pos[0] <= x + w and y <= pos[1] <= y + h:
@@ -161,10 +160,10 @@ async def main():
                     break
 
     def show_popup(message):
-        # use SRCALPHA if you ever need transparency
-        popup = pygame.Surface((350, 100), pygame.SRCALPHA)
-        popup.fill((0, 0, 0, 230))
-        pygame.draw.rect(popup, (255, 255, 255), popup.get_rect(), 2)
+        popup = pygame.Surface((350, 100))
+        popup.fill((0, 0, 0))
+        border = pygame.Rect(0, 0, 350, 100)
+        pygame.draw.rect(popup, (255, 255, 255), border, 2)
         txt = font.render(message, True, text_color)
         popup.blit(txt, (20, 40))
         screen.blit(popup, (WIDTH//2 - 175, HEIGHT//2 - 50))
@@ -186,7 +185,7 @@ async def main():
                 handle_mouse_motion(event.pos)
 
         pygame.display.flip()
-        # throttle so the browser can keep up
+        # yield & cap ~60 FPS
         await asyncio.sleep(1/60)
 
     pygame.quit()
