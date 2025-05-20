@@ -11,7 +11,7 @@ class Keypad:
 
         self.root.title("Futuristic Keypad")
         self.root.geometry("800x640")
-        self.root.configure(bg="#0a0f2c")  # Dark background
+        self.root.configure(bg="#0a0f2c")
 
         self.code_label = tk.Label(root, text="Enter Access Code", font=("Courier", 16, "bold"),
                                    fg="#00ffcc", bg="#0a0f2c")
