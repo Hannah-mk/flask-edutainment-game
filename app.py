@@ -1,59 +1,157 @@
 from flask import Flask, render_template, request, redirect, flash, url_for, session, send_from_directory, abort
-from flask_mysqldb import MySQL
+from flask_mysql_connector import MySQL
 from werkzeug.security import generate_password_hash, check_password_hash
-import MySQLdb.cursors
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 import os
 
 app = Flask(__name__)
 app.secret_key = "1234"  # Needed for flash messages
 
-# --- MySQL Config ---
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = ''
-app.config['MYSQL_DB'] = 'db'
+app.config['MYSQL_HOST'] = os.environ.get('MYSQL_HOST')
+app.config['MYSQL_USER'] = os.environ.get('MYSQL_USER')
+app.config['MYSQL_PASSWORD'] = os.environ.get('MYSQL_PASSWORD')
+app.config['MYSQL_DB'] = os.environ.get('MYSQL_DB')
+app.config['MYSQL_PORT'] = int(os.environ.get('MYSQL_PORT', 3306))
 
 mysql = MySQL(app)
 
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
 # --- Page Routes ---
-@app.route('/')
+@app.route('/')  #Home page
 def home():
     return render_template('home.html')
 
-@app.route('/levels')
+@app.route('/levels') #Levels selection page
 def levels():
     return render_template('levels.html')
 
-@app.route('/levels/gcse')
+# GCSE Level Routes
+@app.route('/levels/gcse') #GCSE level selection page
 def gcse():
     return render_template('gcse.html')
 
-@app.route('/levels/gcse/level1')
-def gcse1():
-    return render_template('gcse1.html')
+@app.route('/levels/gcse/level<level>')
+def show_gcse_level(level):
+    try:
+        return render_template(f'/GCSE/gcse{level}.html')
+    except:
+        abort(404)
 
-@app.route('/levels/gcse/level2')
-def level2():
-    return render_template('gcse2.html')
-
-@app.route('/levels/alevel')
+# A-Level Level Routes
+@app.route('/levels/alevel') # A-Level level selection page
 def alevel():
     return render_template('alevel.html')
 
+@app.route('/levels/alevel/level<level>')
+def show_alevel_level(level):
+    try:
+        return render_template(f'/Alevel/alevel{level}.html')
+    except:
+        abort(404)
+
+# Minigame Routes
+@app.route('/levels/minigames') # A-Level level selection page
+def minigames():
+    return render_template('minigames.html')
+
+@app.route('/levels/minigames/minigame<level>')
+def show_minigame_level(level):
+    try:
+        return render_template(f'/Minigames/minigame{level}.html')
+    except:
+        abort(404)
+
+@app.route('/levels/gcse/gcseminigame<level>')
+def show_gcse_minigame_level(level):
+    try:
+        return render_template(f'/GCSE/GCSE_Minigames/gcse_minigame{level}.html')
+    except:
+        abort(404)
+
+@app.route('/levels/alevel/alevelminigame<level>')
+def show_alevel_minigame_level(level):
+    try:
+        return render_template(f'/Alevel/Alevel_Minigames/alevel_minigame{level}.html')
+    except:
+        abort(404)
+
+# Cutscene Routes
+@app.route('/levels/gcse/gcsecutscene<level>')
+def show_gcse_cutscene(level):
+    try:
+        return render_template(f'/GCSE/GCSE_Cutscenes/gcse_cutscene{level}.html')
+    except:
+        abort(404)
+
+@app.route('/levels/alevel/alevelcutscene<level>')
+def show_alevel_cutscene(level):
+    try:
+        return render_template(f'/Alevel/Alevel_Cutscenes/alevel_cutscene{level}.html')
+    except:
+        abort(404)
+
 # --- Dynamic Game Routes ---
-@app.route('/play/<level>/')
-def play_level(level):
+# GCSE
+@app.route('/play gcse/<level>/')
+def play_gcse_level(level):
     # Path to the build/web folder for the requested level
-    build_dir = os.path.join(app.static_folder, 'game', 'levels', level, 'build', 'web')
+    build_dir = os.path.join(app.static_folder, 'game', 'GCSE', level, 'build', 'web')
     index_path = os.path.join(build_dir, 'index.html')
     if not os.path.exists(index_path):
         abort(404)
     return send_from_directory(build_dir, 'index.html')
 
-@app.route('/play/<level>/<path:filename>')
-def play_asset(level, filename):
-    # Serve JS, WASM, images, APKs, etc.
-    build_dir = os.path.join(app.static_folder, 'game', 'levels', level, 'build', 'web')
+@app.route('/play gcse/<level>/<path:filename>')
+def play_gcse_asset(level, filename):
+    build_dir = os.path.join(app.static_folder, 'game', 'GCSE', level, 'build', 'web')
+    return send_from_directory(build_dir, filename)
+
+#Alevel
+@app.route('/play alevel/<level>/')
+def play_alevel_level(level):
+    # Path to the build/web folder for the requested level
+    build_dir = os.path.join(app.static_folder, 'game', 'Alevel', level, 'build', 'web')
+    index_path = os.path.join(build_dir, 'index.html')
+    if not os.path.exists(index_path):
+        abort(404)
+    return send_from_directory(build_dir, 'index.html')
+
+@app.route('/play alevel/<level>/<path:filename>')
+def play_alevel_asset(level, filename):
+    build_dir = os.path.join(app.static_folder, 'game', 'Alevel', level, 'build', 'web')
+    return send_from_directory(build_dir, filename)
+
+# Minigames
+@app.route('/play minigame/<level>/')
+def play_minigame(level):
+    # Path to the build/web folder for the requested level
+    build_dir = os.path.join(app.static_folder, 'game', 'Minigame', level, 'build', 'web')
+    index_path = os.path.join(build_dir, 'index.html')
+    if not os.path.exists(index_path):
+        abort(404)
+    return send_from_directory(build_dir, 'index.html')
+
+@app.route('/play minigame/<level>/<path:filename>')
+def play_minigame_asset(level, filename):
+    build_dir = os.path.join(app.static_folder, 'game', 'Minigame', level, 'build', 'web')
+    return send_from_directory(build_dir, filename)
+
+#Cutscenes
+@app.route('/play cutscene/<level>/')
+def play_cutscene(level):
+    # Path to the build/web folder for the requested level
+    build_dir = os.path.join(app.static_folder, 'game', 'Cutscenes', level, 'build', 'web')
+    index_path = os.path.join(build_dir, 'index.html')
+    if not os.path.exists(index_path):
+        abort(404)
+    return send_from_directory(build_dir, 'index.html')
+
+@app.route('/play cutscene/<level>/<path:filename>')
+def play_cutscene_asset(level, filename):
+    build_dir = os.path.join(app.static_folder, 'game', 'Cutscenes', level, 'build', 'web')
     return send_from_directory(build_dir, filename)
 
 # --- Authentication Routes ---
@@ -62,8 +160,9 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-
-        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        user_obj = User.get(username)
+        login_user(user_obj)
+        cursor = mysql.connection.cursor(dictionary=True)
         cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
         user = cursor.fetchone()
 
@@ -86,7 +185,7 @@ def signup():
             flash("Passwords do not match.", "error")
             return redirect(url_for('signup'))
 
-        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor = mysql.connection.cursor(dictionary=True)
         cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
         if cursor.fetchone():
             flash("Username already taken. Please choose another.", "error")
@@ -110,7 +209,7 @@ def profile():
         return redirect(url_for('login'))
 
     username = session['username']
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor = mysql.connection.cursor(dictionary=True)
     cursor.execute("SELECT profile_icon FROM users WHERE username = %s", (username,))
     user = cursor.fetchone()
     icon = user['profile_icon'] if user else 'default.svg'
@@ -141,5 +240,60 @@ def update_icon():
         session['profile_icon'] = selected_icon
     return redirect(url_for('profile'))
 
+@app.route('/search_user', methods=['POST'])
+def search_user():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+
+    search_query = request.form['search_username']
+    cursor = mysql.connection.cursor(dictionary=True)
+    cursor.execute("SELECT username FROM users WHERE username LIKE %s", ('%' + search_query + '%',))
+    users = cursor.fetchall()
+
+    return render_template("profile.html", username=session['username'],
+                           user_profile_icon=session.get('profile_icon'),
+                           search_results=users,
+                           search_performed=True)
+
+@app.route('/add_friend', methods=['POST'])
+@login_required
+def add_friend():
+    friend_username = request.form['friend_username']
+    cursor = mysql.connection.cursor()
+    cursor.execute("INSERT INTO friends (user1, user2) VALUES (%s, %s)", (current_user.username, friend_username))
+    mysql.connection.commit()
+    return redirect(url_for('profile'))
+
+
+class User(UserMixin):
+    def __init__(self, id, username, profile_icon):
+        self.id = id
+        self.username = username
+        self.profile_icon = profile_icon
+
+    @staticmethod
+    def get(username):
+        cursor = mysql.connection.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
+        user = cursor.fetchone()
+        if not user:
+            return None
+        return User(id=user['id'], username=user['username'], profile_icon=user.get('profile_icon', 'default.svg'))
+
+    @staticmethod
+    def get_by_id(user_id):
+        cursor = mysql.connection.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM users WHERE id = %s", (user_id,))
+        user = cursor.fetchone()
+        if not user:
+            return None
+        return User(id=user['id'], username=user['username'], profile_icon=user.get('profile_icon', 'default.svg'))
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.get_by_id(user_id)
+
+
+# Only needed for local dev, not when using gunicorn
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()

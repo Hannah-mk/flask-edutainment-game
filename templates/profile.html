@@ -23,6 +23,7 @@
                     <div class="submenu">
                         <a href="/levels/gcse">GCSE</a>
                         <a href="/levels/alevel">A-Level</a>
+                        <a href="/levels/minigames">Minigames</a>
                     </div>
                 </div>
             </div>
@@ -53,6 +54,32 @@
                 <img src="{{ url_for('static', filename='images/robot-icon.png') }}" alt="Robot">
             </label>
         </form>
+        <section class="friend-search">
+            <h2>Find and Add Friends</h2>
+            <form method="POST" action="/search_user">
+                <input type="text" name="search_username" placeholder="Enter username" required>
+                <button type="submit">Search</button>
+            </form>
+        
+            {% if search_results %}
+                <div class="search-results">
+                    <h3>Results:</h3>
+                    <ul>
+                        {% for user in search_results %}
+                            <li>
+                                {{ user.username }}
+                                <form method="POST" action="/add_friend" style="display:inline;">
+                                    <input type="hidden" name="friend_username" value="{{ user.username }}">
+                                    <button type="submit">Add Friend</button>
+                                </form>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% elif search_performed %}
+                <p>No users found.</p>
+            {% endif %}
+        </section>        
     </main>
     <script>
         document.addEventListener('DOMContentLoaded', () => {

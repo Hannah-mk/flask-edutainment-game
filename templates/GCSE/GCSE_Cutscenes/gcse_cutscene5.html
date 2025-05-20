@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GCSE - Cutscene 5</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+</head>
+<body>
+  <div class="top-icons" id="topIcons">
+    <div class="menu-container">
+      <button class="menu-btn">&#8942;</button>
+      <div class="dropdown-menu">
+        <div class="menu-section">
+          <a href="/" class="menu-heading-link"><h3>Home</h3></a>
+          <div class="submenu">
+            <a href="/#the-game" class="scroll-link">About the Game</a>
+            <a href="/#how-to-play" class="scroll-link">How to Play</a>
+            <a href="/#about-ai" class="scroll-link">About AI</a>
+          </div>
+        </div>
+        <div class="menu-section">
+          <a href="/levels" class="menu-heading-link"><h3>Levels</h3></a>
+          <div class="submenu">
+            <a href="/levels/gcse" class="scroll-link">GCSE</a>
+            <a href="/levels/alevel" class="scroll-link">A-Level</a>
+            <a href="/levels/minigames" class="scroll-link">Minigames</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <a href="/login" class="login-icon" title="Login">
+      <img src="{{ url_for('static', filename='icons/login-icon.svg') }}" alt="Login" />
+    </a>
+  </div>
+  <!-- Back to GCSE menu -->
+  <a href="/levels/gcse" class="back-btn">Back to Levels</a>
+  <main>
+    <iframe
+      src="{{ url_for('play_cutscene', level='Cutscene5') }}"
+      width="100%"
+      height="600px"
+      style="border:none;"
+    ></iframe>
+    <!-- NEXT LEVEL BUTTON -->
+  <a href="/levels/gcse/gcseminigame3" class="next-btn" title="Next Level">Next →</a>
+  </main>
+  <script>
+        function toggleMenu() {
+            document.getElementById("sideMenu").classList.toggle("show");
+        }
+        window.addEventListener('scroll', function () {
+            const headerHeight = document.querySelector('header').offsetHeight;
+            const topIcons = document.getElementById('topIcons');
+
+            if (window.pageYOffset > headerHeight) {
+                topIcons.classList.add('scrolled');
+            } else {
+                topIcons.classList.remove('scrolled');
+            }
+        });
+        document.addEventListener('DOMContentLoaded', () => {
+            const menuContainer = document.querySelector('.menu-container');
+            let hideTimeout;
+
+            menuContainer.addEventListener('mouseenter', () => {
+                clearTimeout(hideTimeout);
+                menuContainer.classList.add('show-menu');
+            });
+
+            menuContainer.addEventListener('mouseleave', () => {
+                hideTimeout = setTimeout(() => {
+                    menuContainer.classList.remove('show-menu');
+                }, 300); // 300ms delay to give users time to reach menu
+            });
+        });
+    </script>
+</body>
+</html>
