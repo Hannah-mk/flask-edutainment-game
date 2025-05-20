@@ -31,7 +31,7 @@ async def main():
             (140, 130)
         ),
         "Uranus": pygame.transform.scale(
-            pygame.image.load(os.path.join(ASSET_DIR, 'urano2.png')),
+            pygame.image.load(os.path.join(ASSET_DIR, 'Uranus2.png')),
             (150, 130)
         ),
         "Alien Planet": pygame.transform.scale(
