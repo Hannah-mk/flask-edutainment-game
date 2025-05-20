@@ -31,7 +31,7 @@ async def main():
             (140, 130)
         ),
         "Uranus": pygame.transform.scale(
-            pygame.image.load(os.path.join(ASSET_DIR, 'Uranus2.png')),
+            pygame.image.load(os.path.join(ASSET_DIR, 'Uranus2.png')),  # match actual filename
             (150, 130)
         ),
         "Alien Planet": pygame.transform.scale(
@@ -123,11 +123,11 @@ async def main():
 
     def handle_mouse_down(pos):
         nonlocal dragging, selected_planet
-        # start dragging text?
+        # start dragging a label?
         for name, (x, y) in text_positions.items():
             if x <= pos[0] <= x + 100 and y <= pos[1] <= y + 30:
                 dragging = name
-        # click planet?
+        # clicking a planet?
         for name, (x, y) in planet_positions.items():
             w, h = planets[name].get_size()
             if x <= pos[0] <= x + w and y <= pos[1] <= y + h:
