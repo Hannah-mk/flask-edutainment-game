@@ -11,7 +11,6 @@ async def main():
     SCREEN_WIDTH, SCREEN_HEIGHT = 800, 640
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption("Level 10 – Magnetic Puzzle")
-    # notify loader that we’re up
     window.parent.postMessage("loaded", "*")
 
     # --- Constants & Layout ---
@@ -23,8 +22,9 @@ async def main():
     GRID_START_X, GRID_START_Y = 120, 180
 
     # Colors
-    BLACK = (0, 0, 0)
+    WHITE = (255, 255, 255)
     GREEN = (0, 255, 0)
+    BLACK = (0, 0, 0)  # if you need to draw borders
 
     font = pygame.font.SysFont(None, 28)
 
@@ -120,7 +120,7 @@ async def main():
     close_button  = pygame.Rect(700, 120, 30, 30)
 
     # --- Helper Functions ---
-    def draw_text(txt, x, y, col=BLACK):
+    def draw_text(txt, x, y, col=WHITE):
         screen.blit(font.render(txt, True, col), (x, y))
 
     def calculate_force(path):
@@ -215,7 +215,7 @@ async def main():
             draw_text("x", close_button.x+10, close_button.y+3)
 
         pygame.display.flip()
-        # yield and cap ~60 FPS so browser can paint
+        # yield and cap ~60 FPS so the browser can paint
         await asyncio.sleep(1/60)
 
     pygame.quit()
