@@ -150,21 +150,36 @@ class GameState:
                     self.hints2.append(pygame.Rect(x * TILE, y * TILE, TILE, TILE))
 
     async def game_loop(self):
-        while self.running:
+        game_over = False  # Add this flag
+        while self.running or game_over:  # Continue loop even if game is over
             # Handle events
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
+                    game_over = False  # Allow exit
+                    return
 
-            # Update game state
-            self.update()
-           
+            # Only update if game is still running
+            if self.running:
+                self.update()
+        
             # Draw everything
             self.draw()
-           
+        
+            # Display game over message if needed
+            if not self.running and not game_over:
+                game_over = True
+                font = pygame.font.SysFont(None, 72)
+                if self.current_room_index >= len(mazes):
+                    text = font.render("You Win!", True, GREEN)
+                else:
+                    text = font.render("Game Over!", True, RED)
+                screen.blit(text, (WIDTH//2 - text.get_width()//2, HEIGHT//2 - text.get_height()//2))
+                pygame.display.flip()
+            
             # Cap the frame rate and yield control
             pygame.display.flip()
-            await asyncio.sleep(0)  # This allows other asyncio tasks to run
+            await asyncio.sleep(0)
             clock.tick(FPS)
 
     def update(self):
@@ -188,6 +203,7 @@ class GameState:
         for pitfall in self.pitfalls:
             if self.player.rect.colliderect(pitfall):
                 print("You fell into a pitfall!")
+                # Don't set running to False here - let the game show the message
                 self.running = False
 
         # Check for level completion
@@ -199,9 +215,11 @@ class GameState:
                     self.player.rect.topleft = (1 * TILE, 1 * TILE)
                 else:
                     print("You completed all rooms!")
+                    # Don't set running to False here - let the game show the message
                     self.running = False
         elif self.chatbot is not None and self.player.rect.colliderect(self.chatbot.rect):
             print("You completed all rooms!")
+            # Don't set running to False here - let the game show the message
             self.running = False
 
     def draw(self):
@@ -299,3 +317,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
