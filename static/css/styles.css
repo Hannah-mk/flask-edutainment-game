@@ -427,7 +427,7 @@ input[type="radio"] {
     display: grid;
     grid-template-columns: repeat(28, 1fr);
     grid-auto-rows: auto; /* auto adjusts for label height */
-    gap: 40px 20px; /* increased vertical gap */
+    gap: 20px ; /* increased vertical gap */
     width: max-content;
     padding: 2rem;
 }
