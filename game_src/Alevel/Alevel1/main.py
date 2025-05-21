@@ -20,6 +20,7 @@ async def main():
     try:
         control_room_bg = pygame.image.load(os.path.join(ASSET_DIR, 'controlroomdark.png'))
         control_room_bg = pygame.transform.scale(control_room_bg, (WIDTH, HEIGHT))
+        
 
         zoomed_background = pygame.image.load(os.path.join(ASSET_DIR, 'cr4.png'))
         zoomed_background = pygame.transform.scale(zoomed_background, (WIDTH, HEIGHT))
