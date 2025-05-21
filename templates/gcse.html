@@ -36,7 +36,7 @@
   </div>
   <a href="/levels" class="back-btn">Back</a>
   <header>
-    <h1>GCSE Levels</h1>
+    <h1>GCSE Levels</h1>   
     <div class="level-tiles">
       {% for i in range(1, 12) %}
         {% if i == 1 %}
@@ -44,11 +44,11 @@
         {% else %}
           <a class="tile" href="/levels/gcse/level{{ i }}">
         {% endif %}
-          <img src="{{ url_for('static', filename='game_screenshots/Alevel/'alevel ~ i ~ '.png') }}" alt="Level {{ i }} Preview">
+          <img src="{{ url_for('static', filename='game_screenshots/GCSE/gcse' ~ i ~ '.png') }}" alt="Level {{ i }} Preview">
           <div class="play-overlay">Play Level {{ i }}</div>
         </a>
       {% endfor %}
-    </div>    
+    </div>
   </header>
 
   <script>

@@ -429,7 +429,7 @@ input[type="radio"] {
     grid-auto-rows: auto; /* auto adjusts for label height */
     gap: 20px ; /* increased vertical gap */
     width: max-content;
-    padding: 2rem;
+    /* padding: 2rem; */
 }
 
 .minigame-tiles {
@@ -443,7 +443,7 @@ input[type="radio"] {
 
 .tile img {
     width: 100%;
-    height: 100%;
+    height: 175px;
     object-fit: cover;
 }
 
@@ -468,7 +468,6 @@ input[type="radio"] {
     transform: scale(1.03);
     box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
-  
 }  
 
 /* Square shape for narrow (1-column) tiles */
