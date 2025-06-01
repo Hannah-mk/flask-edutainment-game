@@ -4,7 +4,7 @@ import asyncio
 import sys
 
 pygame.init()
-WIDTH, HEIGHT = 800, 600
+WIDTH, HEIGHT = 800, 640
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("The Final Level")
 clock = pygame.time.Clock()
@@ -189,7 +189,7 @@ def start_game():
     show_intro = False
     display_question()
 
-start_button = Button((300, 400, 250, 50), "Begin Your Escape", start_game)
+start_button = Button((320, 400, 250, 50), "Begin Your Escape", start_game)
 
 async def main():
     global show_intro
