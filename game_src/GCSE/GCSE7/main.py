@@ -1,3 +1,4 @@
+from js import window
 import pygame
 import asyncio
 import sys
