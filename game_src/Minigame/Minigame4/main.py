@@ -1,63 +1,113 @@
 import pygame
-import pymunk
-import pymunk.pygame_util
+import math
 import asyncio
 import random
 from typing import List, Tuple, Optional
-
+from js import window
 "=== MINIGAME 4 ==="
+
+class Vec2:
+    def __init__(self, x: float, y: float):
+        self.x = x
+        self.y = y
+
+    def __add__(self, other):
+        return Vec2(self.x + other.x, self.y + other.y)
+
+    def __sub__(self, other):
+        return Vec2(self.x - other.x, self.y - other.y)
+
+    def __mul__(self, scalar: float):
+        return Vec2(self.x * scalar, self.y * scalar)
+
+    def __truediv__(self, scalar: float):
+        return Vec2(self.x / scalar, self.y / scalar)
+
+    def length(self) -> float:
+        return math.hypot(self.x, self.y)
+
+    def normalized(self):
+        length = self.length()
+        if length == 0:
+            return Vec2(0, 0)
+        return self / length
+
+    def int_tuple(self) -> Tuple[int, int]:
+        return int(self.x), int(self.y)
+
+    def copy(self):
+        return Vec2(self.x, self.y)
+
+    def __repr__(self):
+        return f"Vec2({self.x:.2f}, {self.y:.2f})"
+    
 
 def simulate_trajectory_in_temp_space(
     init_position: Tuple[float, float],
-    init_velocity: pymunk.Vec2d,
-    planets: List['Planet'],  # Now takes full Planet objects
+    init_velocity: Vec2,
+    planets: List['Planet'],  # Planet must have .position (Vec2), .radius, .gravity_field_radius, .gravitational_field_strength
     projectile_mass: float = 0.2,
-    projectile_radius: float = 10,
     dt: float = 1/60.0,
     max_steps: int = 300,
     screen_bounds: Tuple[int, int] = (800, 640)
 ) -> List[Tuple[int, int]]:
-    """Simulates a projectile trajectory in a temporary Pymunk space with multiple gravity fields."""
-    temp_space = pymunk.Space()
-    temp_space.gravity = (0, 0)
-
-    moment = pymunk.moment_for_circle(projectile_mass, 0, projectile_radius)
-    dummy_body = pymunk.Body(projectile_mass, moment)
-    dummy_body.position = init_position
-    dummy_body.velocity = init_velocity
-    dummy_shape = pymunk.Circle(dummy_body, projectile_radius)
-    dummy_shape.elasticity = 0.6
-    dummy_shape.friction = 0.4
-    temp_space.add(dummy_body, dummy_shape)
+    """Simulates projectile trajectory with custom physics."""
+    body = PhysicsBody(init_position, projectile_mass)
+    body.velocity = init_velocity.copy()
 
     points = []
+
     for _ in range(max_steps):
-        total_force = pymunk.Vec2d(0, 0)
+        total_force = Vec2(0, 0)
 
         for planet in planets:
-            direction = planet.body.position - dummy_body.position
-            distance = direction.length
+            direction = planet.position - body.position
+            distance = direction.length()
             min_distance = planet.radius
             max_distance = planet.gravity_field_radius
 
             if min_distance <= distance < max_distance:
-                force = direction.normalized() * max(planet.gravitational_field_strength / (distance ** 2), 5)
+                strength = max(planet.gravitational_field_strength / (distance ** 2), 5)
+                force = direction.normalized() * strength
                 total_force += force
             elif distance < min_distance:
-                dummy_body.velocity *= 0.87
+                # Simulate friction or collision slowdown
+                body.velocity = body.velocity * 0.87
 
-        dummy_body.apply_force_at_world_point(total_force, dummy_body.position)
-        dummy_body.angular_velocity *= 0.8
-        temp_space.step(dt)
+        body.apply_force(total_force)
+        body.update(dt)
 
-        x, y = dummy_body.position
-        points.append((int(x), int(y)))
+        x, y = body.position.int_tuple()
+        points.append((x, y))
 
-        if x < 0 or x > screen_bounds[0] or y < 0 or y > screen_bounds[1] or dummy_body.velocity.length < 10:
+        # Stop if out of bounds or velocity too low
+        if x < 0 or x > screen_bounds[0] or y < 0 or y > screen_bounds[1] or body.velocity.length() < 10:
             break
 
     return points
 
+
+class PhysicsBody:
+    def __init__(self, position: Tuple[float, float], mass: float):
+        self.position = Vec2(*position)   # Current position in space
+        self.velocity = Vec2(0, 0)        # Current velocity
+        self.mass = mass                  # Scalar mass
+        self.force = Vec2(0, 0)           # Accumulated force
+
+    def apply_force(self, force: Vec2):
+        """Accumulate a force vector to apply on next update."""
+        self.force = self.force + force
+
+    def update(self, dt: float):
+        """Update velocity and position using Newtonian mechanics."""
+        acceleration = self.force / self.mass
+        self.velocity = self.velocity + acceleration * dt
+        self.position = self.position + self.velocity * dt
+        self.force = Vec2(0, 0)  # Clear force after applying
+
+    def __repr__(self):
+        return f"PhysicsBody(pos={self.position}, vel={self.velocity})"
+    
 class Game:
     """Main game class"""
     def __init__(self):
@@ -78,39 +128,36 @@ class Game:
         self.dragging = False
         self.projectiles: List[Projectile] = []
         
-        # Setup drawing
-        self.draw_options = pymunk.pygame_util.DrawOptions(self.screen)
-
         # Stages
         self.stages = {
             1: {
                 "planets": [
-                    {"pos": pymunk.Vec2d(400, 320), "gravity": 1e6, "radius": random.choice([20,25,30,35,40,45,50,55,60])}
+                    {"pos": Vec2(400, 320), "gravity": 1e6, "radius": random.choice([20,25,30,35,40,45,50,55,60])}
                 ]
             },
             2: {
                 "planets": [
-                    {"pos": pymunk.Vec2d(400, 400), "gravity": 2e6, "radius": random.choice([20,25,30,35,40,45,50,55,60])},
-                    {"pos": pymunk.Vec2d(200, 300), "gravity": 1.5e6, "radius": random.choice([20,25,30,35,40,45,50,55,60])}
+                    {"pos": Vec2(400, 400), "gravity": 2e6, "radius": random.choice([20,25,30,35,40,45,50,55,60])},
+                    {"pos": Vec2(200, 300), "gravity": 1.5e6, "radius": random.choice([20,25,30,35,40,45,50,55,60])}
                 ]
             },
             3: {
                 "planets": [
-                    {"pos": pymunk.Vec2d(300, 500), "gravity": 1e6, "radius": random.choice([20,25,30,35,40,45,50,55,60])},
-                    {"pos": pymunk.Vec2d(700, 200), "gravity": 2e6, "radius": random.choice([20,25,30,35,40,45,50,55,60])},
-                    {"pos": pymunk.Vec2d(500, 100), "gravity": 1e6, "radius": random.choice([20,25,30,35,40,45,50,55,60])}
+                    {"pos": Vec2(300, 500), "gravity": 1e6, "radius": random.choice([20,25,30,35,40,45,50,55,60])},
+                    {"pos": Vec2(700, 200), "gravity": 2e6, "radius": random.choice([20,25,30,35,40,45,50,55,60])},
+                    {"pos": Vec2(500, 100), "gravity": 1e6, "radius": random.choice([20,25,30,35,40,45,50,55,60])}
                 ]
             },
             4: {
                 "planets": [
-                    {"pos": pymunk.Vec2d(400, 300), "gravity": 1e7, "radius": 30},
-                    {"pos": pymunk.Vec2d(500, 500), "gravity": 3e6, "radius": 25}
+                    {"pos": Vec2(400, 300), "gravity": 1e7, "radius": 30},
+                    {"pos": Vec2(500, 500), "gravity": 1e6, "radius": 25}
                 ]
             },
             5: {
                 "planets": [
-                    {"pos": pymunk.Vec2d(600, 300), "gravity": 3e6, "radius": random.choice([20,25,30,35,40,45,50,55,60])},
-                    {"pos": pymunk.Vec2d(300, 600), "gravity": 2e6, "radius": random.choice([20,25,30,35,40,45,50,55,60])}
+                    {"pos": Vec2(600, 300), "gravity": 3e6, "radius": 60},
+                    {"pos": Vec2(300, 600), "gravity": 1e6, "radius": 20}
                 ]
             },
         }
@@ -161,7 +208,7 @@ class Game:
         if not self.slingshot.loaded_projectile:
             # Check projectile limit before creating new one
             if self.physics_world.active_projectiles < self.physics_world.constants.MAX_PROJECTILES:
-                projectile = Projectile(self.physics_world.space, pos)
+                projectile = Projectile(pos)
                 self.physics_world.add_object(projectile)
                 self.slingshot.load_projectile(projectile)
                 self.dragging = True
@@ -186,17 +233,17 @@ class Game:
         # Update projectile position if dragging
         if self.slingshot.loaded_projectile and self.dragging and self.slingshot.loaded_projectile.body:
             mouse_pos = pygame.mouse.get_pos()
-            pull_vector = pymunk.Vec2d(*mouse_pos) - self.slingshot.position
+            pull_vector = Vec2(*mouse_pos) - self.slingshot.position
         
             # Enforce maximum pull distance visually
-            if pull_vector.length > self.slingshot.max_pull:
+            if pull_vector.length() > self.slingshot.max_pull:
                 pull_vector = pull_vector.normalized() * self.slingshot.max_pull
-                mouse_pos = (self.slingshot.position + pull_vector).int_tuple
+                mouse_pos = (self.slingshot.position + pull_vector).int_tuple()
             
-            self.slingshot.loaded_projectile.body.position = mouse_pos
+            self.slingshot.loaded_projectile.body.position = Vec2(*mouse_pos)
             self.slingshot.predict_trajectory(self.screen)
-            self.slingshot.loaded_projectile.body.position = mouse_pos
-        
+            
+
         font = pygame.font.SysFont(self.constants.FONT, 24)
         counter_text = font.render(
             f"Projectiles: {self.physics_world.active_projectiles}/{self.constants.MAX_PROJECTILES}",
@@ -264,25 +311,16 @@ class Game:
                     self.load_stage(self.current_stage)
                 else:
                     print("Game complete!")
+                    window.parent.postMessage("minigame_complete_4", "*")
                     self.running = False
 
     def reset_level(self):
         """Reset the current level completely"""
-        # Clear all projectiles
-        for obj in self.physics_world.objects[:]:  # Make a copy for safe iteration
-            if isinstance(obj, Projectile):
-                obj.remove_from_space()
-                self.physics_world.objects.remove(obj)
-        
-        # Reset projectile count
+        self.physics_world.objects.clear()
         self.physics_world.active_projectiles = 0
-        
-        # Reset slingshot state
         self.slingshot.loaded_projectile = None
         self.dragging = False
-        
-        # Reload the current stage
-        self.load_stage(self.current_stage)        
+        self.load_stage(self.current_stage)      
 
 class GameConstants:
     """Centralized game constants"""
@@ -297,8 +335,8 @@ class GameConstants:
         self.PLANET_RADIUS = 50
         self.GRAVITY_FIELD_RADIUS = 3 * self.PLANET_RADIUS
         self.GRAVITY_STRENGTH = 1000000
-        self.PLANET_POS = pymunk.Vec2d(600, 600)
-        self.SLINGSHOT_POS = pymunk.Vec2d(100, 500)
+        self.PLANET_POS = Vec2(600, 600)
+        self.SLINGSHOT_POS = Vec2(100, 500)
 
         # Colors
         self.BLACK = (0, 0, 0)
@@ -309,9 +347,8 @@ class GameConstants:
 
 class PhysicsObject:
     """Base class for physics objects with safe initialization"""
-    def __init__(self, space: pymunk.Space, position: Tuple[float, float]):
-        self.space = space
-        self.body = None
+    def __init__(self, position: Tuple[float, float]):
+        self.body = PhysicsBody((position.x, position.y), mass=1.0)  # Default mass
         self.shape = None
         self._initialize_physics(position)
     
@@ -333,72 +370,44 @@ class PhysicsObject:
         """Draw the object - to be overridden by subclasses"""
         pass
 
-class Planet(PhysicsObject):
-    """Planetary body with gravity"""
-    def __init__(self, space: pymunk.Space, constants: GameConstants, position: pymunk.Vec2d, gravitational_field_strength: float, radius: int):
-        self.constants = constants
-        # Scale gravity strength by radius (using inverse square law)
-        self.gravitational_field_strength = gravitational_field_strength * (radius**2) / (constants.PLANET_RADIUS**2)
+class Planet:
+    """Planetary body with gravity and drawing logic"""
+    def __init__(self, position: Vec2, gravitational_field_strength: float, radius: int):
+        self.position = position
+        self.gravitational_field_strength = gravitational_field_strength
         self.radius = radius
-        self.gravity_field_radius = radius * 3
-        super().__init__(space, position)
-    
-    def _initialize_physics(self, position: Tuple[float, float]):
-        """Initialize planet physics"""
-        self.body = pymunk.Body(body_type=pymunk.Body.STATIC)
-        self.body.position = position
-        self.shape = pymunk.Circle(self.body, self.radius)
-        self.shape.elasticity = 0.8
-        self.shape.friction = 0.4
-        self.add_to_space()
-    
-    def draw(self, surface: pygame.Surface):
-        if not self.body:
-            return
-            
-        pos = (int(self.body.position.x), int(self.body.position.y))
-        
-        # Draw gravity field - USE THE PLANET'S OWN FIELD RADIUS
-        pygame.draw.circle(surface, self.constants.WHITE, pos, self.gravity_field_radius)
-        pygame.draw.circle(surface, self.constants.BLACK, pos, self.gravity_field_radius - 2)
-        
-        # Draw planet
-        pygame.draw.circle(surface, self.constants.GREEN, pos, self.radius)
+        self.gravity_field_radius = radius * 3  # or use a constant if needed
 
-class Projectile(PhysicsObject):
+    def draw(self, surface: pygame.Surface, constants: GameConstants):
+        pos = self.position.int_tuple()
+        pygame.draw.circle(surface, constants.WHITE, pos, self.gravity_field_radius)
+        pygame.draw.circle(surface, constants.BLACK, pos, self.gravity_field_radius - 2)
+        pygame.draw.circle(surface, constants.GREEN, pos, self.radius)
+
+class Projectile:
     """Projectile that can be launched with velocity-based physics"""
-    def __init__(self, space: pymunk.Space, position: Tuple[float, float]):
+    def __init__(self, position: Tuple[float, float]):
         self.radius = 5
         self.mass = 0.2
+        self.body = PhysicsBody(position, self.mass)
         self.launched = False
         self.should_remove = False
-        super().__init__(space, position)
-    
-    def _initialize_physics(self, position: Tuple[float, float]):
-        """Initialize projectile physics"""
-        moment = pymunk.moment_for_circle(self.mass, 0, self.radius)
-        self.body = pymunk.Body(self.mass, moment)
-        self.body.position = position
-        self.shape = pymunk.Circle(self.body, self.radius)
-        self.shape.elasticity = 0.6
-        self.shape.friction = 0.4
-    
-    def launch(self, velocity: pymunk.Vec2d):
-        """Launch with exact velocity (matches prediction)"""
+
+    def launch(self, velocity: Vec2):
         if not self.launched:
-            self.add_to_space()
-            self.body.velocity = velocity  # Set velocity directly
+            self.body.velocity = velocity
             self.launched = True
-    
+
+    def update(self, dt: float):
+        self.body.update(dt)
+
     def draw(self, surface: pygame.Surface):
-        """Draw the projectile"""
-        if self.body:
-            pygame.draw.circle(
-                surface, 
-                (255, 255, 255),
-                (int(self.body.position.x), int(self.body.position.y)), 
-                self.radius
-            )
+        pygame.draw.circle(
+            surface,
+            (255, 255, 255),
+            self.body.position.int_tuple(),
+            self.radius
+        )
 
 class Slingshot:
     """Slingshot for launching projectiles"""
@@ -417,22 +426,19 @@ class Slingshot:
         self.pull_to_speed_ratio = 0.8
         self.min_pull = 15  # pixels
         self.max_pull = 100
-    
+
     def load_projectile(self, projectile: Projectile):
         """Load projectile only if under limit"""
         if self.physics_world.active_projectiles <= self.physics_world.constants.MAX_PROJECTILES:
-            if self.loaded_projectile:
-                self.loaded_projectile.remove_from_space()
             self.loaded_projectile = projectile
             self.dragging = False
         else:
-            # Immediately remove the new projectile if over limit
-            projectile.remove_from_space()
-    
-    def _calculate_launch_velocity(self, pull_vector: pymunk.Vec2d):
+            # Mark it for removal externally
+            projectile.should_remove = True
+
+    def _calculate_launch_velocity(self, pull_vector: Vec2):
         """Core physics used by both release() and predict_trajectory()"""
-        pull_distance = max(pull_vector.length - self.min_pull, 0)
-        # Enforce maximum pull distance
+        pull_distance = max(pull_vector.length() - self.min_pull, 0)
         pull_distance = min(pull_distance, self.max_pull)
         speed = min(pull_distance * self.pull_to_speed_ratio, self.max_launch_speed)
         speed = max(speed, self.min_launch_speed)
@@ -450,7 +456,7 @@ class Slingshot:
         launched = self.loaded_projectile
         self.loaded_projectile = None
         return launched
-    
+
     def draw(self, surface: pygame.Surface):
         """Draw the slingshot and its loaded projectile"""
         # Draw base
@@ -481,26 +487,13 @@ class Slingshot:
         if self.loaded_projectile and self.loaded_projectile.body:
             band_start_left = (self.position.x - self.width/4, self.position.y + self.height/6)
             band_start_right = (self.position.x + self.width, self.position.y + self.height/6)
-            projectile_pos = (int(self.loaded_projectile.body.position.x), 
-                             int(self.loaded_projectile.body.position.y))
+            projectile_pos = self.loaded_projectile.body.position.int_tuple()
             
-            pygame.draw.line(
-                surface, 
-                (100, 30, 22), 
-                band_start_left, 
-                projectile_pos, 
-                5
-            )
-            pygame.draw.line(
-                surface, 
-                (100, 30, 22), 
-                band_start_right, 
-                projectile_pos, 
-                5
-            )
-    
+            pygame.draw.line(surface, (100, 30, 22), band_start_left, projectile_pos, 5)
+            pygame.draw.line(surface, (100, 30, 22), band_start_right, projectile_pos, 5)
+
     def predict_trajectory(self, surface: pygame.Surface):
-        """Accurate prediction using temporary pymunk simulation"""
+        """Accurate prediction using custom physics simulation"""
         if not self.loaded_projectile or not self.loaded_projectile.body:
             return
 
@@ -509,9 +502,9 @@ class Slingshot:
         velocity = self._calculate_launch_velocity(pull_vector)
 
         points = simulate_trajectory_in_temp_space(
-            init_position=self.loaded_projectile.body.position,
+            init_position=self.loaded_projectile.body.position.int_tuple(),
             init_velocity=velocity,
-            planets=self.physics_world.planets,  # Pass the full planet objects
+            planets=self.physics_world.planets,  # Must be full Planet objects
             projectile_mass=self.loaded_projectile.mass,
             projectile_radius=self.loaded_projectile.radius,
             screen_bounds=(self.constants.WIDTH, self.constants.HEIGHT)
@@ -522,99 +515,49 @@ class Slingshot:
             pygame.draw.lines(surface, (255, 255, 255, 150), False, points, 2)
 
 class PhysicsWorld:
-    """Manages the physics simulation and objects"""
+    """Central manager for simple physics logic"""
     def __init__(self, constants: GameConstants):
-        self.space = pymunk.Space()
-        self.space.gravity = (0, 0)  # We'll handle gravity manually
         self.constants = constants
-        self.active_projectiles = 0
-        self.objects: List[PhysicsObject] = []
+        self.objects: List[Projectile] = []
         self.planets: List[Planet] = []
-        self._create_boundaries()
-    
-    def _create_boundaries(self):
-        """Create walls around the screen"""
-        width, height = self.constants.WIDTH, self.constants.HEIGHT
-        rects = [
-            [(width/2, height - 10), (width, 20)],
-            [(width/2, 10), (width, 20)],
-            [(10, height/2), (20, height)],
-            [(width - 10, height/2), (20, height)]
-        ]
+        self.active_projectiles = 0
 
-        for pos, size in rects:
-            body = pymunk.Body(body_type=pymunk.Body.STATIC)
-            body.position = pos
-            shape = pymunk.Poly.create_box(body, size)
-            shape.elasticity = 0.4
-            shape.friction = 0.5
-            self.space.add(body, shape)
-    
-    def add_object(self, obj: PhysicsObject):
-        """Add object with projectile limit enforcement"""
-        if isinstance(obj, Projectile):
-            # Remove oldest projectile if at limit
-            if self.active_projectiles >= self.constants.MAX_PROJECTILES:
-                self._remove_oldest_projectile()
-            
-            self.active_projectiles += 1
-        
+    def add_object(self, obj: Projectile):
         self.objects.append(obj)
-        obj.add_to_space()
-    
-    def add_planet(self, position: Optional[pymunk.Vec2d] = None, gravitational_field_strength: Optional[float] = None, radius: Optional[int] = None) -> Planet:
-        if position is None:
-            position = self.constants.PLANET_POS
-        if gravitational_field_strength is None:
-            gravitational_field_strength = self.constants.GRAVITY_STRENGTH
-        if radius is None:
-            radius = self.constants.PLANET_RADIUS
-        planet = Planet(self.space, self.constants, position, gravitational_field_strength, radius)
+        self.active_projectiles += 1
+
+    def add_planet(self, position: Vec2, gravitational_field_strength: float, radius: int):
+        planet = Planet(position, gravitational_field_strength, radius)
         self.planets.append(planet)
-        self.objects.append(planet)
-        return planet
-    
-    def _remove_oldest_projectile(self):
-        """Finds and removes the oldest projectile"""
-        for obj in self.objects:
-            if isinstance(obj, Projectile):
-                obj.remove_from_space()
-                self.objects.remove(obj)
-                self.active_projectiles -= 1
-                break
-    
-
-    def apply_gravity(self):
-        """Apply gravity forces from all planets"""
-        for obj in self.objects:
-            if isinstance(obj, Projectile) and obj.body:
-                for planet in self.planets:
-                    self._apply_radial_gravity(obj.body, planet)
-
-    
-    def _apply_radial_gravity(self, body: pymunk.Body, planet: Planet):
-        """Apply radial gravity from a single planet"""
-        direction = planet.body.position - body.position
-        distance = direction.length
-        min_distance = planet.radius
-        max_distance = planet.gravity_field_radius
-
-        if min_distance <= distance < max_distance:
-            force = direction.normalized() * max(planet.gravitational_field_strength / (distance ** 2), 5)
-            body.apply_force_at_world_point(force, body.position)
-        elif distance < min_distance:
-            body.velocity *= 0.87
-        body.angular_velocity *= 0.8
 
     def update(self, dt: float):
-        """Update physics without auto-removal"""
-        self.apply_gravity()
-        self.space.step(dt)
-    
-    def draw(self, surface: pygame.Surface):
-        """Draw all physics objects"""
         for obj in self.objects:
-            obj.draw(surface)
+            if obj.should_remove:
+                continue
+
+            # Gravity from each planet
+            total_force = Vec2(0, 0)
+            for planet in self.planets:
+                direction = planet.position - obj.body.position
+                distance = direction.length()
+
+                if planet.radius <= distance < planet.gravity_field_radius:
+                    strength = max(planet.gravitational_field_strength / (distance ** 2), 5)
+                    total_force += direction.normalized() * strength
+                elif distance < planet.radius:
+                    # Simulate friction if inside planet
+                    obj.body.velocity = obj.body.velocity * 0.87
+
+            obj.body.apply_force(total_force)
+            obj.update(dt)
+
+    def draw(self, surface: pygame.Surface):
+        for planet in self.planets:
+            planet.draw(surface, self.constants)
+
+        for obj in self.objects:
+            if not obj.should_remove:
+                obj.draw(surface)
 
 if __name__ == "__main__":
     game = Game()
