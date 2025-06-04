@@ -80,7 +80,7 @@ class Keypad:
             self.message = "Access Denied"
         self.entered_code = ""
         self.message_time = time.time() + 2
-
+window.parent.postMessage("level_complete_gcse11", "*")
     def schedule_unlock(self):
         asyncio.create_task(self.unlock())
 
