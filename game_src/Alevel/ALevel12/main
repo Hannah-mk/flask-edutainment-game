@@ -213,6 +213,8 @@ async def main():
         clock.tick(60)
         await asyncio.sleep(0)
 
+window.parent.postMessage("level_complete_Alevel12", "*")
+
 if __name__ == "__main__":
     try:
         loop = asyncio.get_event_loop()
