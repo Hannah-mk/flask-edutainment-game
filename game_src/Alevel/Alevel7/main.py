@@ -95,6 +95,8 @@ def main():
                     task = loop.create_task(check_answers())
                     pending_tasks.append(task)
 
+window.parent.postMessage("level_complete_Alevel7", "*")
+        
         for i, (q, pos) in enumerate(zip(questions, question_positions)):
             text = FONT.render(q, True, FG_COLOR)
             screen.blit(text, pos)
