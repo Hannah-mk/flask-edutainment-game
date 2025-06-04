@@ -50,6 +50,7 @@ def handle_answer(answer):
     
     asyncio.create_task(check_answer_async(answer))
 
+window.parent.postMessage("level_complete_Alevel3", "*")
 
 class Button:
     def __init__(self, x, y, text, callback):
