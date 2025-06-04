@@ -85,6 +85,8 @@ questions = [
     },
 ]
 
+window.parent.postMessage("level_complete_gcse12", "*")
+
 class Button:
     def __init__(self, rect, text, callback):
         self.rect = pygame.Rect(rect)
