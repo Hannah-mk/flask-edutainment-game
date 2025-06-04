@@ -44,10 +44,13 @@ async def check_answer_async(answer):
     else:
         show_message("Incorrect! The rocket was travelling too fast and exploded!")
 
+
+
 def handle_answer(answer):
     
     asyncio.create_task(check_answer_async(answer))
 
+window.parent.postMessage("level_complete_gcse3", "*")
 
 class Button:
     def __init__(self, x, y, text, callback):
