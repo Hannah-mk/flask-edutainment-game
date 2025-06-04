@@ -1,85 +1,123 @@
 from js import window
-import tkinter as tk
-from tkinter import messagebox
+import pygame
 import asyncio
+import time
+
+pygame.init()
+
+WIDTH, HEIGHT = 800, 640
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Futuristic Keypad")
+font_large = pygame.font.SysFont("Courier", 26, bold=True)
+font_medium = pygame.font.SysFont("Courier", 18, bold=True)
+font_small = pygame.font.SysFont("Courier", 16, bold=True)
+
+background_color = (10, 15, 44)
+panel_color = (26, 31, 60)
+text_color = (0, 255, 204)
+button_color = (34, 34, 34)
+clear_color = (204, 51, 0)
+unlock_color = (0, 204, 102)
+
+class Button:
+    def __init__(self, rect, text, action, bg, fg):
+        self.rect = pygame.Rect(rect)
+        self.text = text
+        self.action = action
+        self.bg = bg
+        self.fg = fg
+        self.active = False
+
+    def draw(self, surface):
+        color = self.fg if self.active else self.bg
+        pygame.draw.rect(surface, color, self.rect)
+        label = font_medium.render(self.text, True, (0, 0, 0) if self.active else self.fg)
+        label_rect = label.get_rect(center=self.rect.center)
+        surface.blit(label, label_rect)
+
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN and self.rect.collidepoint(event.pos):
+            self.active = True
+        elif event.type == pygame.MOUSEBUTTONUP and self.rect.collidepoint(event.pos):
+            self.active = False
+            self.action()
 
 class Keypad:
-    def __init__(self, root):
-        self.root = root
+    def __init__(self):
         self.secret_code = "343"
         self.entered_code = ""
+        self.message = ""
+        self.message_time = 0
+        self.buttons = []
+        self.create_buttons()
 
-        self.root.title("Futuristic Keypad")
-        self.root.geometry("800x640")
-        self.root.configure(bg="#0a0f2c")
-
-        self.code_label = tk.Label(root, text="Enter Access Code", font=("Courier", 16, "bold"),
-                                   fg="#00ffcc", bg="#0a0f2c")
-        self.code_label.pack(pady=10)
-
-        self.code_display = tk.Label(root, text="", font=("Courier", 26, "bold"),
-                                     fg="#00ffcc", bg="#1a1f3c", width=12, relief="sunken", bd=4)
-        self.code_display.pack(pady=10)
-
-        self.button_frame = tk.Frame(root, bg="#0a0f2c")
-        self.button_frame.pack(pady=10)
-
+    def create_buttons(self):
+        start_x, start_y = 280, 200
+        spacing = 70
         for i in range(1, 10):
-            self.create_button(i)
-        self.create_button(0)
+            row = (i - 1) // 3
+            col = (i - 1) % 3
+            rect = (start_x + col * spacing, start_y + row * spacing, 60, 60)
+            self.buttons.append(Button(rect, str(i), lambda n=i: self.press(str(n)), button_color, text_color))
+        rect = (start_x + spacing, start_y + 3 * spacing, 60, 60)
+        self.buttons.append(Button(rect, "0", lambda: self.press("0"), button_color, text_color))
+        rect_clear = (start_x, start_y + 3 * spacing, 60, 60)
+        self.buttons.append(Button(rect_clear, "C", self.clear, clear_color, (255,255,255)))
+        rect_unlock = (start_x + 2 * spacing, start_y + 3 * spacing, 60, 60)
+        self.buttons.append(Button(rect_unlock, "⏎", self.schedule_unlock, unlock_color, (255,255,255)))
 
-        # Buttons for Clear and Unlock
-        self.clear_button = tk.Button(self.button_frame, text="C", font=("Courier", 18, "bold"),
-                                      command=self.clear, width=4, height=2,
-                                      bg="#cc3300", fg="white", activebackground="#ff3300", relief="raised")
-        self.clear_button.grid(row=3, column=0, padx=5, pady=5)
-
-        self.unlock_button = tk.Button(self.button_frame, text="⏎", font=("Courier", 18, "bold"),
-                                       command=self.schedule_unlock, width=4, height=2,
-                                       bg="#00cc66", fg="white", activebackground="#00ff88", relief="raised")
-        self.unlock_button.grid(row=3, column=2, padx=5, pady=5)
-
-    def create_button(self, number):
-        button = tk.Button(self.button_frame, text=str(number), font=("Courier", 18, "bold"),
-                           command=lambda: self.press_button(number), width=4, height=2,
-                           bg="#222", fg="#00ffcc", activebackground="#00ffcc", activeforeground="#000",
-                           relief="raised", bd=3)
-        row = (number - 1) // 3 if number != 0 else 3
-        col = (number - 1) % 3 if number != 0 else 1
-        button.grid(row=row, column=col, padx=5, pady=5)
-
-    def press_button(self, number):
-        self.entered_code += str(number)
-        self.code_display.config(text=self.entered_code)
+    def press(self, value):
+        self.entered_code += value
 
     def clear(self):
         self.entered_code = ""
-        self.code_display.config(text="")
 
     async def unlock(self):
         await asyncio.sleep(0.1)
         if self.entered_code == self.secret_code:
-            messagebox.showinfo("Access Granted", "Code correct. Welcome!")
+            self.message = "Access Granted"
         else:
-            messagebox.showerror("Access Denied", "Incorrect code. Try again.")
+            self.message = "Access Denied"
         self.entered_code = ""
-        self.code_display.config(text="")
+        self.message_time = time.time() + 2
 
     def schedule_unlock(self):
         asyncio.create_task(self.unlock())
 
-def run_asyncio_loop_in_tk(root, interval=50):
-    try:
-        asyncio.get_event_loop().stop()
-        asyncio.get_event_loop().run_until_complete(asyncio.sleep(0))
-    except RuntimeError:
-        pass
-    root.after(interval, run_asyncio_loop_in_tk, root, interval)
+    def draw(self, surface):
+        surface.fill(background_color)
+        label = font_small.render("Enter Access Code", True, text_color)
+        surface.blit(label, (WIDTH//2 - label.get_width()//2, 50))
+        code_box = pygame.Rect(WIDTH//2 - 150, 100, 300, 50)
+        pygame.draw.rect(surface, panel_color, code_box)
+        pygame.draw.rect(surface, text_color, code_box, 4)
+        code_text = font_large.render(self.entered_code, True, text_color)
+        surface.blit(code_text, (code_box.x + 20, code_box.y + 10))
+        for btn in self.buttons:
+            btn.draw(surface)
+        if self.message and time.time() < self.message_time:
+            msg = font_medium.render(self.message, True, (255, 255, 0))
+            surface.blit(msg, (WIDTH//2 - msg.get_width()//2, HEIGHT - 80))
 
-def run_app():
-    root = tk.Tk()
-    Keypad(root)
-    run_asyncio_loop_in_tk(root)
-    root.mainloop()
+    def handle_event(self, event):
+        for btn in self.buttons:
+            btn.handle_event(event)
 
-run_app()
+async def pygame_loop():
+    clock = pygame.time.Clock()
+    keypad = Keypad()
+    running = True
+    while running:
+        pygame.event.pump()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            keypad.handle_event(event)
+
+        keypad.draw(screen)
+        pygame.display.flip()
+        clock.tick(60)
+
+        await asyncio.sleep(0.01)
+
+asyncio.create_task(pygame_loop())

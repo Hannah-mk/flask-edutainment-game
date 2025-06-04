@@ -427,9 +427,9 @@ input[type="radio"] {
     display: grid;
     grid-template-columns: repeat(28, 1fr);
     grid-auto-rows: auto; /* auto adjusts for label height */
-    gap: 40px 20px; /* increased vertical gap */
+    gap: 20px ; /* increased vertical gap */
     width: max-content;
-    padding: 2rem;
+    /* padding: 2rem; */
 }
 
 .minigame-tiles {
@@ -443,7 +443,7 @@ input[type="radio"] {
 
 .tile img {
     width: 100%;
-    height: 100%;
+    height: 175px;
     object-fit: cover;
 }
 
@@ -468,7 +468,6 @@ input[type="radio"] {
     transform: scale(1.03);
     box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
-  
 }  
 
 /* Square shape for narrow (1-column) tiles */
@@ -562,24 +561,40 @@ input[type="radio"] {
 .friend-search button {
     padding: 0.5em 1em;
 }
-.next-btn {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background-color: #4DB8FF;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-weight: bold;
-    text-decoration: none;
-    font-size: 1rem;
-    border: 2px solid white;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    z-index: 1001;
-  }
+.game-container {
+  display: flex;              
+  justify-content: center;    
+  align-items: flex-end;      /* pins items to bottom of container */
+  gap: 10px;                  /* space between iframe and button */
+  margin: 5rem auto;          /* center on page */
+  max-width: 95vw;            /* responsive limit */
+}
   
-  .next-btn:hover {
-    background-color: #3399cc;
-    transform: scale(1.05);
-  }
+.game-iframe {
+  flex: 1;                    /* grow to fill available space */
+  width: 800px;          /* optional upper bound */
+  /* width: 100%;                fill container */
+  aspect-ratio: 16/9;         /* maintain your game's ratio */
+  border: none;
+}
+.next-btn {
+  /* now a normal flex child, bottom-aligned by align-items */
+  margin-bottom: 5px;         /* small gap from iframe bottom */
+  background-color: #4DB8FF;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  text-decoration: none;
+  font-size: 1rem;
+  border: 2px solid white;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  z-index: 1001;
+  white-space: nowrap;        /* prevent wrapping */
+}
+.next-btn:hover {
+  background-color: #3399cc;
+  transform: scale(1.05);
+}
+  
   

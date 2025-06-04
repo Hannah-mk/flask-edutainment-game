@@ -34,18 +34,15 @@
     </a>
   </div>
 
-  <!-- Back to GCSE menu -->
   <a href="/levels/gcse" class="back-btn">Back to Levels</a>
 
-  <main>
+  <main class="game-container">
     <iframe
+      class="game-iframe"
       src="{{ url_for('play_gcse_level', level='GCSE1') }}"
-      width="100%"
-      height="600px"
-      style="border:none;"
+      title="Level 1 - GCSE"
     ></iframe>
-    <!-- NEXT LEVEL BUTTON -->
-  <a href="/levels/gcse/level2" class="next-btn" title="Next Level">Next →</a>
+    <a href="/levels/gcse/level2" class="next-btn" title="Next Level">Next →</a>
   </main>
   <script>
         function toggleMenu() {
