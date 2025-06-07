@@ -3,7 +3,7 @@ import math
 import asyncio
 import random
 from typing import List, Tuple, Optional
-from js import window
+
 "=== MINIGAME 4 ==="
 
 class Vec2:
@@ -47,6 +47,7 @@ def simulate_trajectory_in_temp_space(
     init_velocity: Vec2,
     planets: List['Planet'],  # Planet must have .position (Vec2), .radius, .gravity_field_radius, .gravitational_field_strength
     projectile_mass: float = 0.2,
+    projectile_radius: float = 0.1,
     dt: float = 1/60.0,
     max_steps: int = 300,
     screen_bounds: Tuple[int, int] = (800, 640)
@@ -311,7 +312,6 @@ class Game:
                     self.load_stage(self.current_stage)
                 else:
                     print("Game complete!")
-                    window.parent.postMessage("minigame_complete_4", "*")
                     self.running = False
 
     def reset_level(self):
