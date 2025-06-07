@@ -125,12 +125,51 @@ a.link:hover {
     box-shadow: 0 0 4px rgba(0,0,0,0.3);
     text-transform: uppercase;
 }
-.login-icon img {
-    width: 32px;
-    height: 32px;
-    cursor: pointer;
-    filter: brightness(0) invert(1);
+.profile-link img.profile-avatar {
+  width: 32px;        /* or whatever you like */
+  height: 32px;
+  object-fit: cover;  /* preserves aspect ratio */
+  border-radius: 50%;
+  filter: none;       /* turn off the invert */
 }
+/* make the iframe+button line up side-by-side */
+.game-container {
+  display: flex;
+  align-items: flex-end;   /* bottom-align iframe & button */
+  justify-content: center; /* center the whole block */
+  gap: 1rem;               /* space between them */
+  margin: 2rem auto;       /* push away from top/bottom and center */
+  max-width: 95vw;         /* avoid overflow */
+}
+
+/* let the iframe grow to fill available space */
+.game-iframe {
+  flex: 1;                 /* take all leftover width */
+  height: 600px;           /* or whatever fixed height you prefer */
+  max-width: 800px;        /* optional cap */
+  border: none;
+}
+
+/* style the Next button (you probably already have this) */
+.next-btn {
+  display: inline-block;
+  margin-bottom: 0;        /* no extra gap under it */
+  background-color: #4DB8FF;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 2px solid white;
+  font-weight: bold;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.next-btn:hover {
+  background-color: #3399cc;
+  transform: scale(1.05);
+}
+
 .login-icon:hover img {
     opacity: 0.7;
 }
@@ -597,4 +636,562 @@ input[type="radio"] {
   transform: scale(1.05);
 }
   
-  
+/* New “card” style for grouping */
+.card {
+  background-color: #222;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin: 1.5rem auto;
+  max-width: 600px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  text-align: left;
+}
+
+.card-heading {
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  color: #fff;
+  border-bottom: 2px solid #4DB8FF;
+  padding-bottom: 0.5rem;
+}
+
+.card-text {
+  font-size: 1rem;
+  color: #ccc;
+  margin-top: 0.5rem;
+}
+
+/* ================================================
+   1. Reset any unwanted main padding & center content
+   ================================================ */
+.profile-main {
+  padding: 2rem;           /* vertical breathing room around profile */
+  text-align: center;      /* center the two-column group within <main> */
+}
+
+/* ================================================
+   2. Two-column container: sidebar (left) + content (right)
+   ================================================ */
+.profile-container {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;      /* both cards align at the top */
+  justify-content: center;      /* center the pair of cards in the viewport */
+  gap: 2rem;                    /* gap between the two cards */
+  max-width: 800px;             /* optional: limit how wide the two-card group can grow */
+  margin: 0 auto;               /* center the container itself */
+  box-sizing: border-box;
+}
+.profile-container .card {
+  margin: 0;            /* reset the vertical margin */
+}
+
+/* — Left column (icon management) */
+.profile-sidebar {
+  flex: 0 0 280px;
+  display: flex;
+  flex-direction: column;   /* ← stack them vertically */
+  align-items: center;      /* center both cards */
+  gap: 1.5rem;              /* space between the two cards */
+  box-sizing: border-box;
+}
+
+/* — Right column (friends tab card) */
+.profile-content {
+  flex: 0 0 200px;    /* fixed width of 360px (or adjust as needed) */
+  display: flex;
+  flex-direction: column;
+  align-items: center;      /* both cards align at the top */
+  justify-content: flex-start; 
+  box-sizing: border-box;
+}
+
+.level-tiles .tile {
+  position: relative;
+  overflow: hidden;
+  /* your existing tile styles... */
+}
+
+/* greyscale + disable clicks */
+.level-tiles .tile.locked {
+  filter: grayscale(100%);
+  pointer-events: none;
+  opacity: 0.6; /* optional extra dimming */
+}
+
+/* centered padlock */
+.level-tiles .tile .lock-overlay {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: auto;
+  height: auto;
+  background: none;
+}
+
+.level-tiles .tile .lock-overlay img {
+  width: 48px;
+  height: auto;
+  display: block;
+}
+
+.profile-heading {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* or flex-start if you’d rather have it left-aligned */
+  gap: 0.5rem;             /* space between icon and text */
+  font-size: 2rem;         /* adjust as needed */
+}
+
+.profile-heading-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #fff;  /* optional white ring */
+}
+
+
+/* ================================================
+   3. Icon-Management Card (Left Panel)
+   ================================================ */
+.icon-management-card {
+  background-color: #222;
+  /* border-radius: 12px; */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  height: 200px;
+  width: 380px;
+}
+
+.icon-management-card .card-heading {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #fff;
+  border-bottom: 2px solid #4DB8FF;
+  padding-bottom: 0.5rem;
+  text-align: left;
+}
+
+.current-icon-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.current-icon {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #4DB8FF;
+}
+
+.no-icon-text {
+  font-size: 1rem;
+  color: #ccc;
+  margin: 1rem 0;
+}
+
+.icon-selection-form {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.icon-option {
+  /* give each tile a fixed footprint */
+  width: 120px;      /* wider */
+  height: 100px;     /* shorter */
+  padding: 0.5rem;
+  border-radius: 8px;
+  background: #222;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease;
+}
+
+.icon-option img {
+  width: 80px;       /* or adjust to taste */
+  height: 80px;
+  object-fit: cover;
+  border-radius: 50%;
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+/* Progress card */
+.progress-card {
+  background-color: #222;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-top: 1.5rem;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  text-align: left;
+  height: 350px;
+  width: 400px;
+}
+.progress-section label {
+  display: block;
+  font-size: 0.9rem;
+  margin-top: 0.75rem;
+  color: #ccc;
+}
+.progress-bar-container {
+  background: #333;
+  border-radius: 4px;
+  width: 100%;
+  height: 10px;
+  margin: 4px 0 8px;
+  overflow: hidden;
+}
+.progress-bar {
+  background: #4DB8FF;
+  height: 100%;
+}
+.scores-heading {
+  margin-top: 1rem;
+  font-size: 1.1rem;
+  color: #fff;
+  border-bottom: 1px solid #444;
+  padding-bottom: 0.25rem;
+}
+.highscores-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+}
+.highscores-list li {
+  padding: 0.25rem 0;
+  font-size: 0.9rem;
+  color: #ccc;
+  border-bottom: 1px solid #333;
+}
+.highscores-list li:last-child {
+  border-bottom: none;
+}
+
+
+.icon-option input[type="radio"] {
+  display: none;
+}
+
+.icon-option input[type="radio"]:checked + img {
+  border-color: #4DB8FF;
+  transform: scale(1.1);
+}
+
+.icon-label {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: #ccc;
+}
+
+.icon-selection-form {
+  display: flex;
+  flex-wrap: nowrap;         /* prevent stacking */
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;                 /* space between tiles */
+  margin-top: 1rem;
+}
+
+
+/* ================================================
+   4. Friends-Tab Card (Right Panel)
+   ================================================ */
+.friends-tab-card {
+  background-color: #222;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  height: 605px;
+  width: 300px;
+}
+
+/* Tab buttons at the top of that card */
+.tab-buttons {
+  display: flex;
+  border-bottom: 2px solid #4DB8FF;
+  margin-bottom: 1rem;
+}
+
+.tab-btn {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 0.75rem 1rem;
+  font-size: 1.1rem;
+  color: #ccc;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.tab-btn:not(.active):hover {
+  background-color: #333;
+}
+
+.tab-btn.active {
+  color: #fff;
+  border-bottom: 4px solid #4DB8FF; /* highlight active tab */
+}
+
+/* Tab content containers */
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* — “Your Friends” list (first tab) */
+.friends-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.friend-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #333;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.friend-name {
+  color: #fff;
+  font-size: 1rem;
+}
+
+.friend-action-form {
+  margin: 0;
+}
+
+.remove-friend-btn {
+  background-color: transparent;
+  border: 2px solid #ff5555;
+  color: #ff5555;
+  border-radius: 8px;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.remove-friend-btn:hover {
+  background-color: #ff5555;
+  color: #fff;
+}
+
+.remove-friend-btn:focus {
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+}
+
+.no-friends-text {
+  font-size: 1rem;
+  color: #ccc;
+  text-align: center;
+  padding: 1rem 0;
+}
+
+/* — “Find Friends” section (second tab) */
+.friend-search-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.friend-search-form input[type="text"] {
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  width: 60%;
+  max-width: 250px;
+  background-color: #111;
+  color: #fff;
+}
+
+.friend-search-form input[type="text"]::placeholder {
+  color: #ccc;
+}
+
+.search-btn {
+  background-color: #4DB8FF;
+  color: #fff;
+  border: 2px solid #fff;
+  border-radius: 8px;
+  padding: 0.5rem 0.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.search-btn:hover {
+  background-color: #3399cc;
+  transform: scale(1.03);
+}
+
+.search-btn:focus {
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+}
+
+.search-results {
+  margin-top: 1rem;
+  text-align: left;
+}
+
+.results-heading {
+  font-size: 1.25rem;
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+
+.results-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.results-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #333;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.found-username {
+  color: #fff;
+  font-size: 1rem;
+}
+
+.add-friend-form {
+  margin: 0;
+}
+
+.add-friend-btn {
+  background-color: transparent;
+  border: 2px solid #4DB8FF;
+  color: #4DB8FF;
+  border-radius: 8px;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.add-friend-btn:hover {
+  background-color: #4DB8FF;
+  color: #fff;
+}
+
+.add-friend-btn:focus {
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+}
+
+.no-results-text {
+  margin-top: 1rem;
+  font-size: 1rem;
+  color: #ccc;
+  text-align: center;
+}
+
+/* ================================================
+   5. Responsive Breakpoints
+   ================================================ */
+/* — stack sidebar + content vertically below 900px */
+@media (max-width: 900px) {
+  .profile-container {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .profile-sidebar,
+  .profile-content {
+    flex: none;
+    width: 100%;
+  }
+}
+
+/* — shrink icons & make buttons full-width below 600px */
+@media (max-width: 600px) {
+  .current-icon {
+    width: 80px;
+    height: 80px;
+  }
+
+  .icon-option img {
+    width: 64px;
+    height: 64px;
+  }
+
+  .remove-friend-btn,
+  .add-friend-btn,
+  .search-btn {
+    width: 100%;
+  }
+
+  .friend-search-form {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .friend-search-form input[type="text"] {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+/* 1. Lay out the iframe and button in a row, bottom-aligned */
+.game-container {
+  display: flex;
+  justify-content: center; /* center them horizontally */
+  align-items: flex-end;   /* align their bottoms */
+  gap: 1rem;               /* space between iframe & button */
+  margin: 2rem auto;       /* some breathing room */
+  max-width: 95vw;         /* prevent horizontal scroll */
+}
+
+/* 2. Let the iframe fill remaining space */
+.game-iframe {
+  flex: 1;                 /* grow to use all extra width */
+  max-width: 900px;        /* optional cap */
+  height: 600px;           /* fix your desired height */
+  border: none;
+}
+
+/* 3. Tweak your Next button (optional tweaks) */
+.next-btn {
+  display: inline-block;
+  margin-bottom: 0;        /* no extra bottom gap */
+  background-color: #4DB8FF;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 2px solid white;
+  font-weight: bold;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.next-btn:hover {
+  background-color: #3399cc;
+  transform: scale(1.05);
+}

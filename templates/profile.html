@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Your Profile</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='/css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
+    <!-- Top Icons / Navigation (UNCHANGED) -->
     <div class="top-icons" id="topIcons">
         <div class="menu-container">
             <button class="menu-btn">&#8942;</button>
@@ -29,59 +30,173 @@
             </div>
         </div>
         <form method="POST" action="/logout" class="logout-form">
-            <button type="submit" class="logout-icon" title="Logout">
-                <img src="{{ url_for('static', filename='icons/logout-icon.svg') }}" alt="Logout" />
+            <button type="submit" class="logout-icon" title="Logout" aria-label="Logout">
+                <img src="{{ url_for('static', filename='icons/logout-icon.svg') }}" alt="Logout Icon">
             </button>
         </form>
     </div>
 
     <main class="profile-main">
-        <h1>Welcome, {{ username }}!</h1>
+            <h2 class="profile-heading">
+                {% if user_profile_icon %}
+                    <img
+                        src="{{ url_for('static', filename='icons/' ~ user_profile_icon) }}"
+                        alt="Profile Icon"
+                        class="profile-heading-icon"
+                    >
+                {% endif %}
+                Welcome, {{ username }}!
+            </h2>
 
-        {% if user_profile_icon %}
-            <img src="{{ url_for('static', filename='images/' + user_profile_icon) }}" alt="Current Icon" class="current-icon">
-        {% endif %}
+            <div class="profile-container">
+                <!-- LEFT PANEL: Profile Icon card -->
+                <aside class="profile-sidebar">
+                    <div class="card icon-management-card">
+                        <h3 class="card-heading">Profile Icon</h3>
+                          <form method="POST" action="/update_icon" class="icon-selection-form">
+                        <label class="icon-option">
+                            <input
+                                type="radio"
+                                name="icon"
+                                value="astronaut-icon.png"
+                                onchange="this.form.submit()"
+                                {% if user_profile_icon == 'astronaut-icon.png' %}checked{% endif %}
+                            >
+                            <img
+                                src="{{ url_for('static', filename='icons/astronaut-icon.png') }}"
+                                alt="Astronaut Icon"
+                            >
+                            <span class="icon-label">Astronaut</span>
+                        </label>
+                        <label class="icon-option">
+                            <input
+                                type="radio"
+                                name="icon"
+                                value="robot-icon.png"
+                                onchange="this.form.submit()"
+                                {% if user_profile_icon == 'robot-icon.png' %}checked{% endif %}
+                            >
+                            <img
+                                src="{{ url_for('static', filename='icons/robot-icon.png') }}"
+                                alt="Robot Icon"
+                            >
+                            <span class="icon-label">Robot</span>
+                        </label>
+                    </form>
+                    </div>
+                    <!-- after your icon-management-card -->
+                    <div class="card progress-card">
+                        <h3 class="card-heading">Progress</h3>
+                        <div class="progress-section">
+                            <label>GCSE</label>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" style="width:100%;"></div>
+                            </div>
+                            <label>A-Level</label>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" style="width:0%;"></div>
+                            </div>
+                        </div>
+                        <h4 class="scores-heading">Minigames Highscores</h4>
+                        <ul class="highscores-list">
+                            <li>Minigame 1: –</li>
+                            <li>Minigame 2: –</li>
+                            <li>Minigame 3: –</li>
+                            <li>Minigame 4: –</li>
+                            <li>Minigame 5: –</li>
+                        </ul>
+                    </div>
 
-        <p>Select your profile icon:</p>
+                </aside>
 
-        <form method="POST" action="/update_icon" class="icon-selection-form">
-            <label class="icon-option">
-                <input type="radio" name="icon" value="astronaut-icon.png" onchange="this.form.submit()" {% if user_profile_icon == 'astronaut-icon.png' %}checked{% endif %}>
-                <img src="{{ url_for('static', filename='images/astronaut-icon.png') }}" alt="Astronaut">
-            </label>
-            <label class="icon-option">
-                <input type="radio" name="icon" value="robot-icon.png" onchange="this.form.submit()" {% if user_profile_icon == 'robot-icon.png' %}checked{% endif %}>
-                <img src="{{ url_for('static', filename='images/robot-icon.png') }}" alt="Robot">
-            </label>
-        </form>
-        <section class="friend-search">
-            <h2>Find and Add Friends</h2>
-            <form method="POST" action="/search_user">
-                <input type="text" name="search_username" placeholder="Enter username" required>
-                <button type="submit">Search</button>
-            </form>
-        
-            {% if search_results %}
-                <div class="search-results">
-                    <h3>Results:</h3>
-                    <ul>
-                        {% for user in search_results %}
-                            <li>
-                                {{ user.username }}
-                                <form method="POST" action="/add_friend" style="display:inline;">
-                                    <input type="hidden" name="friend_username" value="{{ user.username }}">
-                                    <button type="submit">Add Friend</button>
-                                </form>
-                            </li>
-                        {% endfor %}
-                    </ul>
+                <!-- RIGHT PANEL: Friends tab card -->
+                <div class="profile-content">
+                    <div class="card friends-tab-card">
+                        <div class="tab-buttons">
+                            <button id="tab-your-friends" class="tab-btn active">Your Friends</button>
+                            <button id="tab-find-friends" class="tab-btn">Find Friends</button>
+                        </div>
+
+                        <div id="content-your-friends" class="tab-content active">
+                            <ul class="friends-list">
+                                {% if friends_list %}
+                                    {% for friend in friends_list %}
+                                        <li class="friend-item">
+                                            <span class="friend-name">{{ friend }}</span>
+                                            <form method="POST" action="{{ url_for('remove_friend') }}" class="friend-action-form">
+                                                <input type="hidden" name="friend_username" value="{{ friend }}">
+                                                <button type="submit" class="remove-friend-btn" aria-label="Remove {{ friend }}">Remove</button>
+                                            </form>
+                                        </li>
+                                    {% endfor %}
+                                {% else %}
+                                    <li class="no-friends-text">You have no friends yet.</li>
+                                {% endif %}
+                            </ul>
+                        </div>
+
+                        <div id="content-find-friends" class="tab-content">
+                            <form method="GET" action="{{ url_for('search_user') }}" class="friend-search-form">
+                                <input
+                                    type="text"
+                                    name="search_username"
+                                    placeholder="Enter username"
+                                    required
+                                    aria-label="Search username"
+                                >
+                                <button type="submit" class="search-btn">Search</button>
+                            </form>
+
+                            {% if search_results %}
+                                <div class="search-results">
+                                    <h4 class="results-heading">Results:</h4>
+                                    <ul class="results-list">
+                                        {% for found_user in search_results %}
+                                            <li class="results-item">
+                                                <span class="found-username">{{ found_user.username }}</span>
+                                                <form method="POST" action="{{ url_for('add_friend') }}" class="add-friend-form">
+                                                    <input type="hidden" name="friend_username" value="{{ found_user.username }}">
+                                                    <button type="submit" class="add-friend-btn" aria-label="Add {{ found_user.username }}">Add Friend</button>
+                                                </form>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% elif search_performed %}
+                                <p class="no-results-text">No users found.</p>
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
-            {% elif search_performed %}
-                <p>No users found.</p>
-            {% endif %}
-        </section>        
-    </main>
+                
+            </div>
+        </main>
+
     <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const btnYour = document.getElementById('tab-your-friends');
+            const btnFind = document.getElementById('tab-find-friends');
+            const contentYour = document.getElementById('content-your-friends');
+            const contentFind = document.getElementById('content-find-friends');
+
+            function showYourFriends() {
+                btnYour.classList.add('active');
+                btnFind.classList.remove('active');
+                contentYour.classList.add('active');
+                contentFind.classList.remove('active');
+            }
+
+            function showFindFriends() {
+                btnFind.classList.add('active');
+                btnYour.classList.remove('active');
+                contentFind.classList.add('active');
+                contentYour.classList.remove('active');
+            }
+
+            btnYour.addEventListener('click', showYourFriends);
+            btnFind.addEventListener('click', showFindFriends);
+        });
+
         document.addEventListener('DOMContentLoaded', () => {
             const menuContainer = document.querySelector('.menu-container');
             let hideTimeout;
@@ -94,9 +209,10 @@
             menuContainer.addEventListener('mouseleave', () => {
                 hideTimeout = setTimeout(() => {
                     menuContainer.classList.remove('show-menu');
-                }, 300); // 300ms delay to give users time to reach menu
+                }, 300);
             });
         });
+
         document.querySelectorAll('.scroll-link').forEach(link => {
             link.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -104,8 +220,6 @@
                 if (target) {
                     target.scrollIntoView({ behavior: 'smooth' });
                 }
-
-                // Optionally close the dropdown menu if open
                 document.querySelector('.menu-container').classList.remove('show-menu');
             });
         });

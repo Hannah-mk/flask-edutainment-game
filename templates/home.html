@@ -30,18 +30,22 @@
             </div>
         </div>
         {% if session.get('username') %}
-            <a href="/profile" class="login-icon" title="{{ session['username'] }}'s Profile">
-                {% if session.get('profile_icon') %}
-                    <img src="{{ url_for('static', filename='images/' + session['profile_icon']) }}" alt="Profile" class="login-icon">
-                {% else %}
-                    <div class="default-icon">{{ session['username'][0]|upper }}</div>
-                {% endif %}
-            </a>
+        <a href="/profile" class="profile-link">
+            <img
+            src="{{ url_for('static',
+                            filename='icons/' ~ session['profile_icon']) }}"
+            alt="Profile icon"
+            class="profile-avatar"
+            >
+        </a>
         {% else %}
-            <a href="/login" class="login-icon" title="Login">
-                <img src="{{ url_for('static', filename='icons/login-icon.svg') }}" alt="Login" />
-            </a>
+        <a href="/login" class="login-icon" title="Login">
+            <img src="{{ url_for('static',
+                                filename='icons/login-icon.svg') }}"
+                alt="Login">
+        </a>
         {% endif %}
+
     </div>         
     <header>
         <video id="mainVideo" autoplay muted playsinline class="bg-video">
@@ -116,6 +120,8 @@
                 topIcons.classList.remove('scrolled');
             }
         });
+
+        user_profile_icon = session.get('profile_icon')
      </script>
 </body>
 </html>
