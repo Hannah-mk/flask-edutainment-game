@@ -73,6 +73,8 @@ buttons = [
     Button((200, 540, 120, 40), "7460N", lambda: handle_answer("7460N")),
 ]
 
+window.parent.postMessage("level_complete_gcse6", "*")
+
 async def main_loop():
     global message
     clock = pygame.time.Clock()
