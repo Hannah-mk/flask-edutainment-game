@@ -80,7 +80,7 @@ class Keypad:
             self.message = "Access Denied"
         self.entered_code = ""
         self.message_time = time.time() + 2
-window.parent.postMessage("level_complete_gcse11", "*")
+
     def schedule_unlock(self):
         asyncio.create_task(self.unlock())
 
@@ -119,5 +119,5 @@ async def pygame_loop():
         clock.tick(60)
 
         await asyncio.sleep(0.01)
-
+    window.parent.postMessage("level_complete_gcse11", "*")
 asyncio.create_task(pygame_loop())
