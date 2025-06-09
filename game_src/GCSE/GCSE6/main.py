@@ -117,13 +117,12 @@ async def main_loop():
 
     pygame.quit()
 
-try:
-    import nest_asyncio
-    nest_asyncio.apply()
-except ImportError:
-    print("Consider installing nest_asyncio for better asyncio support in Jupyter: pip install nest_asyncio")
+if __name__ == "__main__":
+    try:
+        import nest_asyncio
+        nest_asyncio.apply()
+    except ImportError:
+        print("Consider installing nest_asyncio for better asyncio support in Jupyter: pip install nest_asyncio")
 
-loop = asyncio.get_event_loop()
-task = loop.create_task(main_loop())
-
-
+    loop = asyncio.get_event_loop()
+    task = loop.create_task(main_loop())
