@@ -1,10 +1,9 @@
-#from js import window
+from js import window
 import pygame
 import sys
 import time
 import asyncio
 import os
-from js import window
 pygame.init()
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -25,8 +24,10 @@ large_font = pygame.font.SysFont("arial", 24, bold=True)
 text_lines = [
     "The rocket needs to take off from earth!",
     "The two thrusters weigh 675kg each and the main body of the rocket weighs 2240kg.",
+    "The rocket is flying at an angle 70° from the horizontal axis.",
+    "There is only a downwards force acting on the rocket.",
     "The rocket must accelerate opposite to gravity at 15ms^(-2) to escape earth's atmosphere.",
-    "What force does the rocket need to exert in a direction opposite to gravity?"
+    "What force does the rocket need to exert in it's direction of flight?"
 ]
 
 
@@ -41,16 +42,13 @@ def show_message(text, duration=2):
 
 async def check_answer_async(answer):
     await asyncio.sleep(0.5)
-    correct_answer = "89750N"
+    correct_answer = "11564.94N"
     if answer == correct_answer:
         show_message("Correct! The rocket has reached the desired acceleration!")
     else:
         show_message("Incorrect! The rocket was travelling too fast and exploded!")
 
-
-
 def handle_answer(answer):
-    
     asyncio.create_task(check_answer_async(answer))
 
 
@@ -73,9 +71,9 @@ class Button:
 
 
 buttons = [
-    Button(250, 400, "53850N", handle_answer),
-    Button(350, 400, "89750N", handle_answer),
-    Button(450, 400, "72875N", handle_answer),
+    Button(250, 400, "6926.32N", handle_answer),
+    Button(350, 400, "89750.73N", handle_answer),
+    Button(450, 400, "11564.94N", handle_answer),
 ]
 
 
@@ -108,17 +106,13 @@ async def main_loop():
 
         await asyncio.sleep(0)  
         clock.tick(60)
-
-    window.parent.postMessage("level_complete_gcse3", "*")
-    pygame.quit()
-    sys.exit()
+    window.parent.postMessage("level_complete_Alevel3", "*")
 
 
 def run_pygame_async():
     try:
         loop = asyncio.get_event_loop()
         if loop.is_running():
-            
             asyncio.create_task(main_loop())
         else:
             loop.run_until_complete(main_loop())
