@@ -1,13 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>GCSE Levels</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alevel - Level 12</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
 </head>
-<body style="background-color: black;">
-
+<body>
   <div class="top-icons" id="topIcons">
     <div class="menu-container">
       <button class="menu-btn">&#8942;</button>
@@ -23,9 +22,9 @@
         <div class="menu-section">
           <a href="/levels" class="menu-heading-link"><h3>Levels</h3></a>
           <div class="submenu">
-            <a href="/levels/gcse">GCSE</a>
-            <a href="/levels/alevel">A-Level</a>
-            <a href="/levels/minigames">Minigames</a>
+            <a href="/levels/gcse" class="scroll-link">GCSE</a>
+            <a href="/levels/alevel" class="scroll-link">A-Level</a>
+            <a href="/levels/minigames" class="scroll-link">Minigames</a>
           </div>
         </div>
       </div>
@@ -34,25 +33,22 @@
       <img src="{{ url_for('static', filename='icons/login-icon.svg') }}" alt="Login" />
     </a>
   </div>
-  <a href="/levels" class="back-btn">Back</a>
-  <header>
-    <h1>GCSE Levels</h1>   
-    <div class="level-tiles">
-      {% for i in range(1, 13) %}
-        {% if i == 1 %}
-          <a class="tile" href="/levels/gcse/gcsecutscene1">
-        {% else %}
-          <a class="tile" href="/levels/gcse/level{{ i }}">
-        {% endif %}
-          <img src="{{ url_for('static', filename='game_screenshots/GCSE/gcse' ~ i ~ '.png') }}" alt="Level {{ i }} Preview">
-          <div class="play-overlay">Play Level {{ i }}</div>
-        </a>
-      {% endfor %}
-    </div>
-  </header>
 
+  <!-- Back to GCSE menu -->
+  <a href="/levels/alevel" class="back-btn">Back to Levels</a>
+
+  <main class="game-container">
+    <iframe
+      src="{{ url_for('play_alevel_level', level='Alevel12') }}"
+      width="100%"
+      height="600px"
+      style="border:none;"
+    ></iframe>
+    <!-- NEXT LEVEL BUTTON -->
+    <a href="/levels/alevel/alevelcutscene14" class="next-btn" title="Next Level">Next →</a>
+  </main>
   <script>
-    function toggleMenu() {
+        function toggleMenu() {
             document.getElementById("sideMenu").classList.toggle("show");
         }
         window.addEventListener('scroll', function () {
@@ -80,7 +76,17 @@
                 }, 300); // 300ms delay to give users time to reach menu
             });
         });
-        
-  </script>
+        window.watsonAssistantChatOptions = {
+          integrationID: "7d5a5f12-8aff-47c0-afe7-7f8f1c21d9ac", 
+          region: "au-syd", // The region your integration is hosted in.
+          serviceInstanceID: "28321761-60e5-4c56-a88d-0a3c78ba3235", 
+          onLoad: async (instance) => { await instance.render(); }
+        };
+        setTimeout(function(){
+          const t=document.createElement('script');
+          t.src="https://web-chat.global.assistant.watson.appdomain.cloud/versions/" + (window.watsonAssistantChatOptions.clientVersion || 'latest') + "/WatsonAssistantChatEntry.js";
+          document.head.appendChild(t);
+        });
+    </script>
 </body>
 </html>
