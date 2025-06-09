@@ -9,45 +9,46 @@ SCREEN_WIDTH, SCREEN_HEIGHT = 960, 516
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Image and OGG playback")
 
-base_path = r'C:\Users\luuxm\OneDrive\Escritorio\CLASSES\groupproject\cutscene\png'
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+ASSET_DIR = os.path.join(BASE_DIR, "assets")
 
-# Load images separately
-cutscene1 = pygame.image.load(os.path.join(base_path, 'cutscene1.png'))
-cutscene1 = pygame.transform.scale(cutscene1, (SCREEN_WIDTH, SCREEN_HEIGHT))
-cutscene2 = pygame.image.load(os.path.join(base_path, 'cutscene2.png'))
-cutscene2 = pygame.transform.scale(cutscene2, (SCREEN_WIDTH, SCREEN_HEIGHT))
-cutscene3 = pygame.image.load(os.path.join(base_path, 'cutscene3.png'))
-cutscene3 = pygame.transform.scale(cutscene3, (SCREEN_WIDTH, SCREEN_HEIGHT))
-cutscene4 = pygame.image.load(os.path.join(base_path, 'cutscene4.png'))
-cutscene4 = pygame.transform.scale(cutscene4, (SCREEN_WIDTH, SCREEN_HEIGHT))
-cutscene5 = pygame.image.load(os.path.join(base_path, 'cutscene5.png'))
-cutscene5 = pygame.transform.scale(cutscene5, (SCREEN_WIDTH, SCREEN_HEIGHT))
-cutscene6 = pygame.image.load(os.path.join(base_path, 'cutscene6.png'))
-cutscene6 = pygame.transform.scale(cutscene6, (SCREEN_WIDTH, SCREEN_HEIGHT))
-cutscene7 = pygame.image.load(os.path.join(base_path, 'cutscene7.png'))
-cutscene7 = pygame.transform.scale(cutscene7, (SCREEN_WIDTH, SCREEN_HEIGHT))
-cutscene8 = pygame.image.load(os.path.join(base_path, 'cutscene8.png'))
-cutscene8 = pygame.transform.scale(cutscene8, (SCREEN_WIDTH, SCREEN_HEIGHT))
+# Load images
+images = []
+for i in range(1, 9):
+    img_path = os.path.join(ASSET_DIR, f'cutscene{i}.png')
+    img = pygame.image.load(img_path)
+    img = pygame.transform.scale(img, (SCREEN_WIDTH, SCREEN_HEIGHT))
+    images.append(img)
 
 # Load audio
-mixer_path = os.path.join(base_path, "voiceover1.ogg")
+mixer_path = os.path.join(ASSET_DIR, "voiceover1.ogg")
 pygame.mixer.music.load(mixer_path)
 pygame.mixer.music.set_volume(0.7)
 
 # Durations for each image in seconds
-durations = [0.5, 3.5, 4.5, 4.5, 5, 3, 4, 3]
+durations = [0.5, 4, 4.5, 5, 4, 3, 4, 3]
+
+# Calculate cumulative durations to know when to switch images
+cumulative_durations = []
+total = 0
+for d in durations:
+    total += d
+    cumulative_durations.append(total)
 
 paused = False
 
-async def display_image(image, duration):
+async def main_loop():
     global paused
-    start = time.time()
-    while True:
+    pygame.mixer.music.play()
+    start_time = time.time()
+    running = True
+    elapsed = 0
+
+    while running:
+        # Handle events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.mixer.music.stop()
-                pygame.quit()
-                exit()
+                running = False
 
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_p:
@@ -58,25 +59,25 @@ async def display_image(image, duration):
                     paused = False
 
         if not paused:
-            elapsed = time.time() - start
-            if elapsed >= duration:
+            elapsed = time.time() - start_time
+        # else keep elapsed the same so image doesn't change
+
+        # Determine which image to display based on elapsed time
+        current_image_index = 0
+        for i, cd in enumerate(cumulative_durations):
+            if elapsed < cd:
+                current_image_index = i
                 break
+        else:
+            # If elapsed time exceeds total duration, stop running
+            running = False
+            continue
 
-        screen.blit(image, (0, 0))
+        screen.blit(images[current_image_index], (0, 0))
         pygame.display.update()
-        await asyncio.sleep(0.01)
 
-async def main_loop():
-    pygame.mixer.music.play()
-
-    await display_image(cutscene1, durations[0])
-    await display_image(cutscene2, durations[1])
-    await display_image(cutscene3, durations[2])
-    await display_image(cutscene4, durations[3])
-    await display_image(cutscene5, durations[4])
-    await display_image(cutscene6, durations[5])
-    await display_image(cutscene7, durations[6])
-    await display_image(cutscene8, durations[7])
+        # Use asyncio.sleep instead of time.sleep to avoid blocking
+        await asyncio.sleep(0.01)  # small delay to let asyncio loop run
 
     pygame.mixer.music.stop()
     pygame.quit()
