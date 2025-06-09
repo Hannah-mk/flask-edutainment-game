@@ -35,7 +35,7 @@ pygame.mixer.music.load(mixer_path)
 pygame.mixer.music.set_volume(0.7)
 
 # Durations for each image in seconds
-durations = [0.5, 3, 4.5, 5, 5, 3, 4, 3]
+durations = [0.5, 3.5, 4.5, 4.5, 5, 3, 4, 3]
 
 paused = False
 
