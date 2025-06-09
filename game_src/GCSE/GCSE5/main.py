@@ -1,4 +1,4 @@
-from js import os
+from js import window
 import pygame, math, asyncio, os, sys
 
 # Initialize pygame
