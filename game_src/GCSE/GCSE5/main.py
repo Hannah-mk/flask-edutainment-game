@@ -136,7 +136,7 @@ def redrawWindow():
     bearing_text = font.render(f'Bearing: {round(bearing)}°', True, (255, 255, 255))
     win.blit(bearing_text, (10, 10))
 
-    # Current challenge prompt (reverted to original text)
+    # Current challenge prompt
     if current_challenge == 0:
         prompt_text = font.render(f'Challenge 1: Aim at 45° (±3°)', True, (255, 255, 255))
     elif current_challenge == 1:
