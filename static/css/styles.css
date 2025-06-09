@@ -514,9 +514,10 @@ input[type="radio"] {
 .level-tiles a:nth-child(3),
 .level-tiles a:nth-child(5),
 .level-tiles a:nth-child(8),
-.level-tiles a:nth-child(10){
+.level-tiles a:nth-child(10),
+.level-tiles a:nth-child(12){
     aspect-ratio: 1 / 1;
-    width: 175px;
+    width: 150px;
 }
 
 .minigame-tiles a:nth-child(1),
@@ -539,7 +540,7 @@ input[type="radio"] {
 .level-tiles a:nth-child(9)  { grid-column: span 5; grid-row: 2; }
 .level-tiles a:nth-child(10) { grid-column: span 4; grid-row: 2; }
 .level-tiles a:nth-child(11) { grid-column: span 5; grid-row: 2; }
-.level-tiles a:nth-child(11) { grid-column: span 4; grid-row: 2; }
+.level-tiles a:nth-child(12) { grid-column: span 4; grid-row: 2; }
 
 /* First row placements (spans add to 12 columns) */
 .minigame-tiles a:nth-child(1) { grid-column: span 4; grid-row: 1; }
