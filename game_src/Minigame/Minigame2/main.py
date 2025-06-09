@@ -18,18 +18,18 @@ from js import window
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-rocket_images = [pygame.transform.scale(pygame.image.load(os.path.join(BASE_DIR, "assets", "Rocket", "Idle" ,"0Rocket_Image.png")), (200, 300)),#0
+rocket_images = [pygame.transform.scale(pygame.image.load(os.path.join(BASE_DIR, "assets", "Rocket", "Idle","0Rocket_Image.png")), (200, 300)),#0
                     pygame.transform.scale(pygame.image.load(os.path.join(BASE_DIR, "assets", "Background", "level_1.png")), (800, 640)),#1
                     pygame.transform.scale(pygame.image.load(os.path.join(BASE_DIR, "assets", "Rocket", "Flying", "0Rocket_Image.png")), (200, 300)),#2
                     pygame.transform.scale(pygame.image.load(os.path.join(BASE_DIR, "assets", "Rocket", "Flying", "1Rocket_Image.png")), (200, 300)),#3
                     pygame.transform.scale(pygame.image.load(os.path.join(BASE_DIR, "assets", "Rocket", "Death", "empty background.png")), (200, 300)),#4
                     pygame.transform.scale(pygame.image.load(os.path.join(BASE_DIR, "assets", "Meteor", "Hint", "Hint1.png")), (80, 120)),#5
                     pygame.transform.scale(pygame.image.load(os.path.join(BASE_DIR, "assets", "Meteor", "Hint", "Hint2.png")), (80, 120)),#6
-                    pygame.transform.scale(pygame.image.load(os.path.join(BASE_DIR, "assets", "Meteor", "Asteroid 1", "Idle", "0Meteor_Image.png")), (80, 120)),#7
-                    pygame.transform.scale(pygame.image.load(os.path.join(BASE_DIR, "assets", "Meteor", "Asteroid 1", "Moving", "0Meteor.png")), (80, 120)),#8
-                    pygame.transform.scale(pygame.image.load(os.path.join(BASE_DIR, "assets", "Meteor", "Asteroid 1", "Moving", "1Meteor.png")), (80, 120)),#9
-                    pygame.transform.scale(pygame.image.load(os.path.join(BASE_DIR, "assets", "Meteor", "Asteroid 1", "Moving", "2Meteor.png")), (80, 120)),#10
-                    pygame.transform.scale(pygame.image.load(os.path.join(BASE_DIR, "assets", "Meteor", "Asteroid 2", "Asteroid2.png")), (80, 120))]#11
+                    pygame.transform.scale(pygame.image.load(os.path.join(BASE_DIR, "assets", "Meteor", "Asteroid1", "Idle", "0Meteor_Image.png")), (80, 120)),#7
+                    pygame.transform.scale(pygame.image.load(os.path.join(BASE_DIR, "assets", "Meteor", "Asteroid1", "Moving", "0Meteor.png")), (80, 120)),#8
+                    pygame.transform.scale(pygame.image.load(os.path.join(BASE_DIR, "assets", "Meteor", "Asteroid1", "Moving", "1Meteor.png")), (80, 120)),#9
+                    pygame.transform.scale(pygame.image.load(os.path.join(BASE_DIR, "assets", "Meteor", "Asteroid1", "Moving", "2Meteor.png")), (80, 120)),#10
+                    pygame.transform.scale(pygame.image.load(os.path.join(BASE_DIR, "assets", "Meteor", "Asteroid2", "Asteroid2.png")), (80, 120))]#11
 
 class Game:
     """Main game class that handles initialization and the game loop."""
@@ -254,8 +254,8 @@ class Game:
             # Check level completion
             if abs(self.bg_scroll) >= abs(self.finish_line.rect.y - self.FLOOR_Y):
                 self.level_complete = True
-                window.parent.postMessage("game_complete_minigame2", "*")
-
+                window.parent.postMessage("game_complete_minigame1", "*")
+        
         self.all_sprites.update()
 
     def render(self):
