@@ -120,9 +120,6 @@ def main():
         clock.tick(60)
         
     window.parent.postMessage("level_complete_gcse7", "*")
-
-    window.parent.postMessage("level_complete_gcse7", "*")
-
     pygame.quit()
     sys.exit()
 
