@@ -3,7 +3,7 @@ import pygame
 import sys
 import time
 import asyncio
-
+import os
 pygame.init()
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
