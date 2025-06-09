@@ -5,7 +5,7 @@ from typing import List, Tuple, Dict, Optional, Literal
 import math
 from enum import Enum, auto
 import asyncio
-
+from js import window
 
 "=== MINIGAME 5 ==="
 
@@ -248,7 +248,7 @@ class Game:
             # Check level completion
             if abs(self.bg_scroll) >= abs(self.finish_line.rect.y - self.FLOOR_Y):
                 self.level_complete = True
-                #window.parent.postMessage("level_complete_minigame1", "*")  # Notify the parent window that the level is complete
+                window.parent.postMessage("game_complete_minigame5", "*")  # Notify the parent window that the level is complete
         
             # Enemy spawning
             current_time = pygame.time.get_ticks()

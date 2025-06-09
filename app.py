@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, flash, url_for, session, send_from_directory, abort
 from flask_mysql_connector import MySQL
+from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 import os
@@ -15,7 +16,7 @@ app.secret_key = "1234"  # Needed for flash messages
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = ''
-app.config['MYSQL_DB'] = 'db'
+app.config['MYSQL_DATABASE'] = 'db'
 mysql = MySQL(app)
 
 login_manager = LoginManager()
@@ -171,7 +172,7 @@ def login():
 
         if user and 'password_hash' in user and check_password_hash(user['password_hash'], password):
             session['username'] = username
-            session['profile_icon'] = user.get('profile_icon', 'default.svg')
+            session['profile_icon'] = user.get('profile_icon') or 'default.svg'
             return redirect(url_for('home'))
         flash("Invalid username or password.", "error")
 
@@ -213,11 +214,104 @@ def profile():
 
     username = session['username']
     cursor = mysql.connection.cursor(dictionary=True)
+
+    # profile icon
     cursor.execute("SELECT profile_icon FROM users WHERE username = %s", (username,))
     user = cursor.fetchone()
     icon = user['profile_icon'] if user else 'default.svg'
 
-    return render_template('profile.html', username=username, user_profile_icon=icon)
+    # their friends
+    cursor.execute("SELECT user2 AS friend_username FROM friends WHERE user1 = %s", (username,))
+    friends = cursor.fetchall()  # list of dicts: [{ 'friend_username': 'alice' }, ...]
+
+    return render_template(
+      'profile.html',
+      username=username,
+      user_profile_icon=icon,
+      friends_list=[f['friend_username'] for f in friends],
+      search_results=None,
+      search_performed=False
+    )
+
+@app.route('/add_friend', methods=['POST'])
+def add_friend():
+    if 'username' not in session:
+        flash("Log in first to add friends.", "error")
+        return redirect(url_for('login'))
+
+    user1 = session['username']
+    user2 = request.form['friend_username']
+
+    if user1 == user2:
+        flash("You can’t add yourself.", "error")
+        return redirect(url_for('profile'))
+
+    cursor = mysql.connection.cursor()
+    try:
+        cursor.execute(
+          "INSERT INTO friends (user1, user2) VALUES (%s, %s)",
+          (user1, user2)
+        )
+        mysql.connection.commit()
+        flash(f"{user2} is now your friend!", "success")
+    except Exception as e:
+        # if it’s a duplicate key, they’re already friends
+        flash(f"You’re already friends with {user2}.", "info")
+    return redirect(url_for('profile'))
+
+@app.route('/remove_friend', methods=['POST'])
+def remove_friend():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+
+    user1 = session['username']
+    user2 = request.form['friend_username']
+
+    cursor = mysql.connection.cursor()
+    cursor.execute(
+      "DELETE FROM friends WHERE user1 = %s AND user2 = %s",
+      (user1, user2)
+    )
+    mysql.connection.commit()
+    flash(f"You’ve removed {user2}.", "success")
+    return redirect(url_for('profile'))
+
+@app.route('/search_user')
+@login_required
+def search_user():
+    me    = session['username']
+    query = request.args.get('search_username', '').strip()
+
+    cursor = mysql.connection.cursor(dictionary=True)
+
+    # 1) get your existing friends
+    cursor.execute(
+      "SELECT user2 AS friend_username FROM friends WHERE user1 = %s",
+      (me,)
+    )
+    friend_rows = cursor.fetchall()
+    friends_list = [r['friend_username'] for r in friend_rows]
+
+    # 2) now do the search
+    cursor.execute("""
+      SELECT username
+        FROM users
+       WHERE username LIKE %s
+         AND username != %s
+         AND username NOT IN (
+             SELECT user2 FROM friends WHERE user1 = %s
+         )
+    """, (f"%{query}%", me, me))
+    results = cursor.fetchall()
+
+    return render_template(
+      "profile.html",
+      username=me,
+      user_profile_icon=session.get('profile_icon'),
+      friends_list=friends_list,
+      search_results=results,
+      search_performed=True
+    )
 
 @app.route('/logout', methods=['POST'])
 def logout():
@@ -242,31 +336,6 @@ def update_icon():
         mysql.connection.commit()
         session['profile_icon'] = selected_icon
     return redirect(url_for('profile'))
-
-@app.route('/search_user', methods=['POST'])
-def search_user():
-    if 'username' not in session:
-        return redirect(url_for('login'))
-
-    search_query = request.form['search_username']
-    cursor = mysql.connection.cursor(dictionary=True)
-    cursor.execute("SELECT username FROM users WHERE username LIKE %s", ('%' + search_query + '%',))
-    users = cursor.fetchall()
-
-    return render_template("profile.html", username=session['username'],
-                           user_profile_icon=session.get('profile_icon'),
-                           search_results=users,
-                           search_performed=True)
-
-@app.route('/add_friend', methods=['POST'])
-@login_required
-def add_friend():
-    friend_username = request.form['friend_username']
-    cursor = mysql.connection.cursor()
-    cursor.execute("INSERT INTO friends (user1, user2) VALUES (%s, %s)", (current_user.username, friend_username))
-    mysql.connection.commit()
-    return redirect(url_for('profile'))
-
 
 class User(UserMixin):
     def __init__(self, id, username, profile_icon):

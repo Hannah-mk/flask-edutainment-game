@@ -254,7 +254,7 @@ class Game:
             # Check level completion
             if abs(self.bg_scroll) >= abs(self.finish_line.rect.y - self.FLOOR_Y):
                 self.level_complete = True
-                window.parent.postMessage("level_complete_gcse1", "*")
+                window.parent.postMessage("game_complete_minigame1", "*")
         
         self.all_sprites.update()
 
