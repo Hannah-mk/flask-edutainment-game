@@ -73,7 +73,7 @@ buttons = [
     Button((200, 540, 120, 40), "7460N", lambda: handle_answer("7460N")),
 ]
 
-window.parent.postMessage("level_complete_Alevel6", "*"
+
 
 async def main_loop():
     global message
@@ -111,7 +111,7 @@ async def main_loop():
         pygame.display.flip()
         clock.tick(60)
         await asyncio.sleep(0)
-
+    window.parent.postMessage("level_complete_Alevel6", "*")
     pygame.quit()
 
 try:

@@ -84,8 +84,6 @@ class Keypad:
     def schedule_unlock(self):
         asyncio.create_task(self.unlock())
 
-    window.parent.postMessage("level_complete_Alevel11", "*")
-
     def draw(self, surface):
         surface.fill(background_color)
         label = font_small.render("Enter Access Code", True, text_color)
@@ -104,7 +102,7 @@ class Keypad:
     def handle_event(self, event):
         for btn in self.buttons:
             btn.handle_event(event)
-
+window.parent.postMessage("level_complete_Alevel11", "*")
 async def pygame_loop():
     clock = pygame.time.Clock()
     keypad = Keypad()
