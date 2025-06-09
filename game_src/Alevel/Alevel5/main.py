@@ -328,5 +328,4 @@ async def main():
         await asyncio.sleep(0)
 
 asyncio.run(main())
-pygame.quit()
 sys.exit()
