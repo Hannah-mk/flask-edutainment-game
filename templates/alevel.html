@@ -38,7 +38,7 @@
   <header>
     <h1>Alevel Levels</h1>
     <div class="level-tiles">
-      {% for i in range(1, 12) %}
+      {% for i in range(1, 13) %}
         {% set is_locked = current_user.is_authenticated and i != 1 %}
         <a 
           class="tile{% if is_locked %} locked{% endif %}"
