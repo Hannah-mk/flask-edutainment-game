@@ -1,4 +1,4 @@
-from js import os
+from js import window
 import pygame, math, asyncio, os, sys
 
 # Initialize pygame
@@ -172,9 +172,9 @@ class GameState:
         self.win.blit(bearing_text, (10, 10))
 
         # Current challenge prompt
-        if current_challenge == 0:
+        if self.current_challenge == 0:
             prompt_text = font.render(f'Challenge 1: Aim at π/4 (± π/60) rad', True, (255, 255, 255))
-        elif current_challenge == 1:
+        elif self.current_challenge == 1:
             prompt_text = font.render(f'Challenge 2: Aim at arctan(√3) (±2°)', True, (255, 255, 255))
         else:
             prompt_text = font.render(f'Challenge 3: Aim at arcsin(1/2) (±4°)', True, (255, 255, 255))
