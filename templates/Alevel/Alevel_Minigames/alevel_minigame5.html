@@ -38,15 +38,13 @@
   <!-- Back to GCSE menu -->
   <a href="/levels/alevel" class="back-btn">Back to Levels</a>
 
-  <main>
+  <main class="game-container">
     <iframe
       src="{{ url_for('play_minigame', level='Minigame5') }}"
       width="100%"
       height="600px"
       style="border:none;"
     ></iframe>
-    <!-- NEXT LEVEL BUTTON -->
-  <a href="/levels/alevel/alevelcutscene16" class="next-btn" title="Next Level">Next →</a>
   </main>
   <script>
         function toggleMenu() {
