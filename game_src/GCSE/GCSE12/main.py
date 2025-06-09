@@ -85,7 +85,6 @@ questions = [
     },
 ]
 
-window.parent.postMessage("level_complete_gcse12", "*")
 
 class Button:
     def __init__(self, rect, text, callback):
@@ -223,6 +222,7 @@ if __name__ == "__main__":
         else:
             loop.run_until_complete(main())
     except KeyboardInterrupt:
+        window.parent.postMessage("level_complete_gcse12", "*")
         pygame.quit()
         sys.exit()
 
