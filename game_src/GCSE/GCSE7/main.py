@@ -95,8 +95,6 @@ def main():
                     task = loop.create_task(check_answers())
                     pending_tasks.append(task)
 
-        
-        
         for i, (q, pos) in enumerate(zip(questions, question_positions)):
             text = FONT.render(q, True, FG_COLOR)
             screen.blit(text, pos)
