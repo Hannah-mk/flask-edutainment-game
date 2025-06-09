@@ -24,10 +24,11 @@ async def main():
 
     text_lines = [
         "The rocket needs to take off from earth!",
-        "The two thrusters weigh 675kg each and the main body of the rocket weighs 2240kg.",
+        "The two thrusters weigh 675kg each and the main rocket weighs 2240kg.",
         "The rocket is flying at an angle 70° from the horizontal axis.",
         "There is only a downwards force acting on the rocket.",
-        "The rocket must accelerate opposite to gravity at 15ms^(-2) to escape earth's atmosphere.",
+        "The rocket must accelerate opposite to gravity at 15ms^(-2)",
+        " to escape earth's atmosphere.",
         "What force does the rocket need to exert in it's direction of flight?"
     ]
 

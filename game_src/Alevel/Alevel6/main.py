@@ -25,8 +25,8 @@ lines = [
     "You need to land the rocket on Mars.",
     "The gravity on Mars is 3.73ms^(-2).",
     "The mass of your rocket is 2000kg.",
-    "What will be the net upward force",
-    "produced by the rocket for it to decelerate at 2ms^(-2)?"
+    "What will be the net upward force produced",
+    "by the rocket for it to decelerate at 2ms^(-2)?"
 ]
 
 class Button:
