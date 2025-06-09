@@ -213,7 +213,6 @@ async def main():
         clock.tick(60)
         await asyncio.sleep(0)
 
-window.parent.postMessage("level_complete_Alevel12", "*")
 
 if __name__ == "__main__":
     try:
@@ -223,5 +222,6 @@ if __name__ == "__main__":
         else:
             loop.run_until_complete(main())
     except KeyboardInterrupt:
+        window.parent.postMessage("level_complete_Alevel12", "*")
         pygame.quit()
         sys.exit()
