@@ -6,13 +6,15 @@ import asyncio
 
 pygame.init()
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+ASSET_DIR = os.path.join(BASE_DIR, "assets")
 
 WIDTH, HEIGHT = 800, 640
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Rocket Launch Quiz")
 
 
-bg = pygame.image.load("controlroomdark.png")
+bg = pygame.image.load(os.path.join(ASSET_DIR,"controlroomdark.png"))
 bg = pygame.transform.scale(bg, (WIDTH, HEIGHT))
 
 
