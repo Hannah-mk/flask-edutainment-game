@@ -96,7 +96,6 @@ def main():
                     task = loop.create_task(check_answers())
                     pending_tasks.append(task)
 
-window.parent.postMessage("level_complete_gcse7", "*")
         
         for i, (q, pos) in enumerate(zip(questions, question_positions)):
             text = FONT.render(q, True, FG_COLOR)
@@ -119,6 +118,8 @@ window.parent.postMessage("level_complete_gcse7", "*")
             pass
 
         clock.tick(60)
+
+    window.parent.postMessage("level_complete_gcse7", "*")
 
     pygame.quit()
     sys.exit()
