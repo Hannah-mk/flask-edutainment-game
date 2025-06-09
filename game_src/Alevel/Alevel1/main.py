@@ -80,7 +80,7 @@ async def main():
         "resistor_100k":  {"image": resistor_100k_image,  "rect": resistor_100k_image.get_rect(topleft=(100, 270)), "resistance": 100000, "placed": False},
         "resistor_47k":   {"image": resistor_47k,         "rect": resistor_47k.get_rect(topleft=(300, 270)),       "resistance": 4700,   "placed": False},
         "led":            {"image": led_off_image,        "rect": led_off_image.get_rect(topleft=(650, 425)),      "placed": True, "label": "LED 3V"},
-        "battery":        {"image": battery_image,        "rect": battery_image.get_rect(topleft=(120, 395)),      "placed": True, "label": "Battery 10.5V"}
+        "battery":        {"image": battery_image,        "rect": battery_image.get_rect(topleft=(120, 395)),      "placed": True, "label": "Battery 13.5V"}
     }
 
     switches = [
