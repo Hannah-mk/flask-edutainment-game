@@ -2,8 +2,11 @@ from js import window
 import pygame
 import asyncio
 import time
-
+import os
 pygame.init()
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+ASSET_DIR = os.path.join(BASE_DIR, "assets")
 
 WIDTH, HEIGHT = 800, 640
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -13,7 +16,7 @@ font = pygame.font.SysFont("arial", 22)
 font_bold = pygame.font.SysFont("arial", 24, bold=True)
 
 try:
-    bg_image = pygame.image.load("marsland.png")
+    bg_image = pygame.image.load(os.path.join(ASSET_DIR,"marsland.png"))
     bg_image = pygame.transform.scale(bg_image, (WIDTH, HEIGHT))
 except:
     bg_image = None
@@ -114,13 +117,12 @@ async def main_loop():
 
     pygame.quit()
 
-try:
-    import nest_asyncio
-    nest_asyncio.apply()
-except ImportError:
-    print("Consider installing nest_asyncio for better asyncio support in Jupyter: pip install nest_asyncio")
+if __name__ == "__main__":
+    try:
+        import nest_asyncio
+        nest_asyncio.apply()
+    except ImportError:
+        print("Consider installing nest_asyncio for better asyncio support in Jupyter: pip install nest_asyncio")
 
-loop = asyncio.get_event_loop()
-task = loop.create_task(main_loop())
-
-
+    loop = asyncio.get_event_loop()
+    task = loop.create_task(main_loop())

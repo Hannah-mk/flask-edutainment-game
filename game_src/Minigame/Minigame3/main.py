@@ -356,7 +356,7 @@ mazes = [
         "W...C..WWWWW....CWWWW",
         "W.WWWW....C..WWWP..WW",
         "W.WWWWCWWWWW..WWWW.WW",
-        "WC.WWW.....WWW..CWCWW",
+        "WC.WWW.....WW...CWCWW",
         "WW...W.WWW.WWWWW.W.WW",
         "WW.WPC.WWW.....W...WW",
         "WW.WWW...WWWWW.WWW.WW",

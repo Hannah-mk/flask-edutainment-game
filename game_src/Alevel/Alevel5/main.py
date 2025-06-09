@@ -1,18 +1,23 @@
 from js import window
-import pygame, math, sys, asyncio, os
+import pygame, math, asyncio, os, sys
 
+# Initialize pygame
+pygame.init()
+
+# Screen dimensions
 wScreen = 800
 hScreen = 640
 
-pygame.init()
+# Create window
 win = pygame.display.set_mode((wScreen, hScreen))
 pygame.display.set_caption('Projectile Motion')
 
+# Font setup
 font = pygame.font.SysFont(None, 30)
 large_font = pygame.font.SysFont(None, 60)
 button_font = pygame.font.SysFont(None, 40)
 
-# Load rocket images from assets folder
+# Load rocket image
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 class Button:
@@ -41,7 +46,7 @@ class Button:
             return self.rect.collidepoint(pos)
         return False
 
-class Rocket(object):
+class Rocket:
     def __init__(self, x, y):
         self.x = x
         self.y = y
@@ -119,214 +124,211 @@ class Rocket(object):
 
         return (newx, newy, velx, vely)
 
-def redrawWindow():
-    win.fill((0, 0, 20))
-    planet_radius = 300
-    pygame.draw.circle(win, (50, 80, 120), (wScreen//2, hScreen + planet_radius - 150), planet_radius)
-    
-    rocket.draw(win)
-    
-    if not shoot and not show_message:
-        pygame.draw.line(win, (255, 0, 0), line[0], line[1])
-    
-    bearing = math.degrees(angle)
-    bearing = (90 - bearing) % 360
-    
-    bearing_text = font.render(f'Bearing: {round(bearing)}°', True, (255, 255, 255))
-    win.blit(bearing_text, (10, 10))
+class GameState:
+    def __init__(self):
+        self.win = pygame.display.set_mode((wScreen, hScreen))
+        self.clock = pygame.time.Clock()
+        
+        # Initialize buttons
+        self.next_button = Button(wScreen//2 - 150, hScreen//2, 300, 50, "Next Challenge", (0, 150, 0), (0, 200, 0))
+        self.restart_button = Button(wScreen//2 - 150, hScreen//2, 300, 50, "Try Again", (150, 0, 0), (200, 0, 0))
+        
+        # Initialize game objects
+        self.rocket = Rocket(wScreen // 2, hScreen - 150)
+        self.line = [(self.rocket.x, self.rocket.y), (self.rocket.x, self.rocket.y)]
+        
+        # Game state variables
+        self.run = True
+        self.time = 0
+        self.power = 0
+        self.angle = 0
+        self.shoot = False
+        self.show_message = False
+        self.is_success = False
+        self.all_challenges_completed = False
+        
+        # Challenge system
+        self.current_challenge = 0
+        self.challenges_completed = 0
+        self.target_bearing = 45
+        self.tolerance_deg = 3
+        self.target_min = math.radians(90 - (self.target_bearing + self.tolerance_deg))
+        self.target_max = math.radians(90 - (self.target_bearing - self.tolerance_deg))
 
-    # Current challenge prompt
-    if current_challenge == 0:
-        prompt_text = font.render(f'Challenge 1: Aim at π/4 (± π/60) rad', True, (255, 255, 255))
-    elif current_challenge == 1:
-        prompt_text = font.render(f'Challenge 2: Aim at arctan(√3) (±2°)', True, (255, 255, 255))
-    else:
-        prompt_text = font.render(f'Challenge 3: Aim at arcsin(1/2) (±4°)', True, (255, 255, 255))
-    
-    win.blit(prompt_text, (200, 30))
+    def redrawWindow(self):
+        self.win.fill((0, 0, 20))
+        planet_radius = 300
+        pygame.draw.circle(self.win, (50, 80, 120), (wScreen//2, hScreen + planet_radius - 150), planet_radius)
+        
+        self.rocket.draw(self.win)
+        
+        if not self.shoot and not self.show_message:
+            pygame.draw.line(self.win, (255, 0, 0), self.line[0], self.line[1])
+        
+        bearing = math.degrees(self.angle)
+        bearing = (90 - bearing) % 360
+        
+        bearing_text = font.render(f'Bearing: {round(bearing)}°', True, (255, 255, 255))
+        self.win.blit(bearing_text, (10, 10))
 
-    # Challenge progress
-    progress_text = font.render(f'Completed: {min(challenges_completed,3)}/3', True, (255, 255, 255))
-    win.blit(progress_text, (wScreen - 150, 10))
-
-    if show_message:
-        if all_challenges_completed or (current_challenge == 2 and is_success):
-            msg = large_font.render('LEVEL COMPLETE!', True, (0, 255, 255))
-            win.blit(msg, (wScreen//2 - 150, hScreen//2 - 80))
-            restart_button.text = "Play Again"
-            restart_button.draw(win)
-        elif is_success:
-            msg = large_font.render('SUCCESS!', True, (0, 255, 0))
-            win.blit(msg, (wScreen//2 - 100, hScreen//2 - 80))
-            next_button.draw(win)
+        # Current challenge prompt
+        if self.current_challenge == 0:
+            prompt_text = font.render(f'Challenge 1: Aim at π/4 (± π/60) rad', True, (255, 255, 255))
+        elif self.current_challenge == 1:
+            prompt_text = font.render(f'Challenge 2: Aim at arctan(√3) (±2°)', True, (255, 255, 255))
         else:
-            msg = large_font.render('MISSED!', True, (255, 0, 0))
-            win.blit(msg, (wScreen//2 - 100, hScreen//2 - 80))
-            restart_button.draw(win)
+            prompt_text = font.render(f'Challenge 3: Aim at arcsin(1/2) (±4°)', True, (255, 255, 255))
+        
+        self.win.blit(prompt_text, (200, 30))
 
-    pygame.display.update()
+        # Challenge progress
+        progress_text = font.render(f'Completed: {min(self.challenges_completed,3)}/3', True, (255, 255, 255))
+        self.win.blit(progress_text, (wScreen - 150, 10))
 
-def findAngle(pos):
-    sX = rocket.x
-    sY = rocket.y
-    angle = math.atan2(sY - pos[1], pos[0] - sX)
-    return angle
+        if self.show_message:
+            if self.all_challenges_completed or (self.current_challenge == 2 and self.is_success):
+                window.parent.postMessage("level_complete_alevel5", "*")
+                msg = large_font.render('LEVEL COMPLETE!', True, (0, 255, 255))
+                self.win.blit(msg, (wScreen//2 - 150, hScreen//2 - 80))
+                self.restart_button.text = "Play Again"
+                self.restart_button.draw(self.win)
+            elif self.is_success:
+                msg = large_font.render('SUCCESS!', True, (0, 255, 0))
+                self.win.blit(msg, (wScreen//2 - 100, hScreen//2 - 80))
+                self.next_button.draw(self.win)
+            else:
+                msg = large_font.render('MISSED!', True, (255, 0, 0))
+                self.win.blit(msg, (wScreen//2 - 100, hScreen//2 - 80))
+                self.restart_button.draw(self.win)
 
-def restrict_line():
-    global line
-    max_length = 200
-    dx = line[1][0] - line[0][0]
-    dy = line[1][1] - line[0][1]
-    length = math.sqrt(dx**2 + dy**2)
-    if length > max_length:
-        scale = max_length / length
-        line = [line[0], (int(line[0][0] + dx * scale), int(line[0][1] + dy * scale))]
+        pygame.display.update()
 
-def reset_challenge():
-    global shoot, show_message, rocket, line
-    
-    shoot = False
-    show_message = False
-    rocket = Rocket(wScreen // 2, hScreen - 150)
-    line = [(rocket.x, rocket.y), (rocket.x, rocket.y)]
-    return rocket, line
+    def findAngle(self, pos):
+        sX = self.rocket.x
+        sY = self.rocket.y
+        angle = math.atan2(sY - pos[1], pos[0] - sX)
+        return angle
 
-def setup_next_challenge():
-    global current_challenge, challenges_completed, target_bearing, tolerance_deg, target_min, target_max, all_challenges_completed
-    
-    challenges_completed += 1
-    
-    if challenges_completed >= 3:
-        all_challenges_completed = True
-        return
-    
-    # Move to next challenge
-    current_challenge = (current_challenge + 1) % 3
-    
-    # Set parameters for the current challenge
-    if current_challenge == 0:
-        target_bearing = 45
-        tolerance_deg = 3
-    elif current_challenge == 1:
-        target_bearing = 60
-        tolerance_deg = 2
-    else:
-        target_bearing = 30
-        tolerance_deg = 4
-    
-    target_min = math.radians(90 - (target_bearing + tolerance_deg))
-    target_max = math.radians(90 - (target_bearing - tolerance_deg))
+    def restrict_line(self):
+        max_length = 200
+        dx = self.line[1][0] - self.line[0][0]
+        dy = self.line[1][1] - self.line[0][1]
+        length = math.sqrt(dx**2 + dy**2)
+        if length > max_length:
+            scale = max_length / length
+            self.line = [self.line[0], (int(self.line[0][0] + dx * scale), int(self.line[0][1] + dy * scale))]
+
+    def reset_challenge(self):
+        self.shoot = False
+        self.show_message = False
+        self.rocket = Rocket(wScreen // 2, hScreen - 150)
+        self.line = [(self.rocket.x, self.rocket.y), (self.rocket.x, self.rocket.y)]
+
+    def setup_next_challenge(self):
+        self.challenges_completed += 1
+        
+        if self.challenges_completed >= 3:
+            self.all_challenges_completed = True
+            return
+        
+        # Move to next challenge
+        self.current_challenge = (self.current_challenge + 1) % 3
+        
+        # Set parameters for the current challenge
+        if self.current_challenge == 0:
+            self.target_bearing = 45
+            self.tolerance_deg = 3
+        elif self.current_challenge == 1:
+            self.target_bearing = 60
+            self.tolerance_deg = 2
+        else:
+            self.target_bearing = 30
+            self.tolerance_deg = 4
+        
+        self.target_min = math.radians(90 - (self.target_bearing + self.tolerance_deg))
+        self.target_max = math.radians(90 - (self.target_bearing - self.tolerance_deg))
+
+    async def game_loop(self):
+        while self.run:
+            mouse_pos = pygame.mouse.get_pos()
+            
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.run = False
+                    pygame.quit()
+                    sys.exit()
+
+                if not self.shoot and not self.show_message:
+                    if event.type == pygame.MOUSEMOTION:
+                        pos = pygame.mouse.get_pos()
+                        self.angle = self.findAngle(pos)
+                        self.rocket.angle = self.angle
+                        self.line = [(self.rocket.x, self.rocket.y), pos]
+                        self.restrict_line()
+
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        self.rocket.trail = []
+                        self.rocket.hit_wall = False
+                        self.x, self.y = self.rocket.x, self.rocket.y
+                        self.shoot = True
+                        self.power = math.sqrt((self.line[1][1] - self.line[0][1]) ** 2 + (self.line[1][0] - self.line[0][0]) ** 2)
+                        self.angle = self.findAngle(self.line[1])
+                        self.rocket.angle = self.angle
+                        self.time = 0
+                
+                if self.show_message:
+                    if self.all_challenges_completed or (self.current_challenge == 2 and self.is_success):
+                        self.restart_button.check_hover(mouse_pos)
+                        if self.restart_button.is_clicked(mouse_pos, event):
+                            # Reset everything
+                            self.all_challenges_completed = False
+                            self.current_challenge = 0
+                            self.challenges_completed = 0
+                            self.setup_next_challenge()
+                            self.reset_challenge()
+                            self.restart_button.text = "Try Again"
+                    elif self.is_success:
+                        self.next_button.check_hover(mouse_pos)
+                        if self.next_button.is_clicked(mouse_pos, event):
+                            self.setup_next_challenge()
+                            self.reset_challenge()
+                    else:
+                        self.restart_button.check_hover(mouse_pos)
+                        if self.restart_button.is_clicked(mouse_pos, event):
+                            self.reset_challenge()
+
+            if self.shoot and not self.show_message:
+                if not self.rocket.hit_wall:
+                    self.time += 0.05
+                    po = Rocket.rocketPath(self.x, self.y, self.power, self.angle, self.time)
+                    
+                    self.rocket.x = po[0]
+                    self.rocket.y = po[1]
+                    self.rocket.update_trail()
+                    
+                    # Check for collisions
+                    if self.rocket.x <= 15 or self.rocket.x >= wScreen - 15:  # Wall collision
+                        self.rocket.hit_wall = True
+                        bearing = (90 - math.degrees(self.angle)) % 360
+                        self.is_success = abs(bearing - self.target_bearing) <= self.tolerance_deg
+                        self.show_message = True
+                        if self.current_challenge == 2 and self.is_success:
+                            self.all_challenges_completed = True
+                    elif self.rocket.y >= hScreen - 150:  # Ground collision
+                        self.rocket.hit_wall = True
+                        bearing = (90 - math.degrees(self.angle)) % 360
+                        self.is_success = abs(bearing - self.target_bearing) <= self.tolerance_deg
+                        self.show_message = True
+                        if self.current_challenge == 2 and self.is_success:
+                            self.all_challenges_completed = True
+
+            self.redrawWindow()
+            await asyncio.sleep(0)
+            self.clock.tick(60)
 
 async def main():
-    global rocket, line, run, time, power, angle, shoot, show_message, is_success, x, y
-    global current_challenge, challenges_completed, target_bearing, tolerance_deg, target_min, target_max
-    global next_button, restart_button, all_challenges_completed
-    
-    # Initialize buttons
-    next_button = Button(wScreen//2 - 150, hScreen//2, 300, 50, "Next Challenge", (0, 150, 0), (0, 200, 0))
-    restart_button = Button(wScreen//2 - 150, hScreen//2, 300, 50, "Try Again", (150, 0, 0), (200, 0, 0))
-    
-    # Initialize game
-    rocket = Rocket(wScreen // 2, hScreen - 150)
-    line = [(rocket.x, rocket.y), (rocket.x, rocket.y)]
+    game = GameState()
+    await game.game_loop()
 
-    run = True
-    time = 0
-    power = 0
-    angle = 0
-    shoot = False
-    show_message = False
-    is_success = False
-    all_challenges_completed = False
-    clock = pygame.time.Clock()
-
-    # Challenge system
-    current_challenge = 0
-    challenges_completed = 0
-    target_bearing = 45
-    tolerance_deg = 3
-    
-    target_min = math.radians(90 - (target_bearing + tolerance_deg))
-    target_max = math.radians(90 - (target_bearing - tolerance_deg))
-
-    while run:
-        mouse_pos = pygame.mouse.get_pos()
-        clock.tick(60)
-        
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                run = False
-                pygame.quit()
-                sys.exit()
-
-            if not shoot and not show_message:
-                if event.type == pygame.MOUSEMOTION:
-                    pos = pygame.mouse.get_pos()
-                    angle = findAngle(pos)
-                    rocket.angle = angle
-                    line = [(rocket.x, rocket.y), pos]
-                    restrict_line()
-
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    rocket.trail = []
-                    rocket.hit_wall = False
-                    x, y = rocket.x, rocket.y
-                    shoot = True
-                    power = math.sqrt((line[1][1] - line[0][1]) ** 2 + (line[1][0] - line[0][0]) ** 2)
-                    angle = findAngle(line[1])
-                    rocket.angle = angle
-                    time = 0
-            
-            if show_message:
-                if all_challenges_completed or (current_challenge == 2 and is_success):
-                    window.parent.postMessage("level_complete_alevel5", "*")
-                    restart_button.check_hover(mouse_pos)
-                    if restart_button.is_clicked(mouse_pos, event):
-                        # Reset everything
-                        all_challenges_completed = False
-                        current_challenge = 0
-                        challenges_completed = 0
-                        setup_next_challenge()
-                        rocket, line = reset_challenge()
-                        restart_button.text = "Try Again"
-                elif is_success:
-                    next_button.check_hover(mouse_pos)
-                    if next_button.is_clicked(mouse_pos, event):
-                        setup_next_challenge()
-                        rocket, line = reset_challenge()
-                else:
-                    restart_button.check_hover(mouse_pos)
-                    if restart_button.is_clicked(mouse_pos, event):
-                        rocket, line = reset_challenge()
-
-        if shoot and not show_message:
-            if not rocket.hit_wall:
-                time += 0.05
-                po = Rocket.rocketPath(x, y, power, angle, time)
-                
-                rocket.x = po[0]
-                rocket.y = po[1]
-                rocket.update_trail()
-                
-                # Check for collisions
-                if rocket.x <= 15 or rocket.x >= wScreen - 15:  # Wall collision
-                    rocket.hit_wall = True
-                    bearing = (90 - math.degrees(angle)) % 360
-                    is_success = abs(bearing - target_bearing) <= tolerance_deg
-                    show_message = True
-                    if current_challenge == 2 and is_success:
-                        all_challenges_completed = True
-                elif rocket.y >= hScreen - 150:  # Ground collision
-                    rocket.hit_wall = True
-                    bearing = (90 - math.degrees(angle)) % 360
-                    is_success = abs(bearing - target_bearing) <= tolerance_deg
-                    show_message = True
-                    if current_challenge == 2 and is_success:
-                        all_challenges_completed = True
-
-        redrawWindow()
-        await asyncio.sleep(0)
-
-asyncio.run(main())
-pygame.quit()
-sys.exit()
+if __name__ == "__main__":
+    asyncio.run(main())
