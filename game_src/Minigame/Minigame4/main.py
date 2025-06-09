@@ -3,6 +3,7 @@ import math
 import asyncio
 import random
 from typing import List, Tuple, Optional
+from js import window
 
 "=== MINIGAME 4 ==="
 
@@ -49,7 +50,7 @@ def simulate_trajectory_in_temp_space(
     projectile_mass: float = 0.2,
     projectile_radius: float = 0.1,
     dt: float = 1/60.0,
-    max_steps: int = 300,
+    max_steps: int = 100,
     screen_bounds: Tuple[int, int] = (800, 640)
 ) -> List[Tuple[int, int]]:
     """Simulates projectile trajectory with custom physics."""
@@ -312,6 +313,7 @@ class Game:
                     self.load_stage(self.current_stage)
                 else:
                     print("Game complete!")
+                    window.parent.postMessage("game_complete_minigame4", "*")
                     self.running = False
 
     def reset_level(self):
