@@ -9,28 +9,30 @@ SCREEN_WIDTH, SCREEN_HEIGHT = 960, 516
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Image and OGG playback")
 
-base_path = r'C:\Users\luuxm\OneDrive\Escritorio\CLASSES\groupproject\cutscene\png'
+# Use relative paths based on script location
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+ASSET_DIR = os.path.join(BASE_DIR, "assets")
 
 # Load images separately
-cutscene1 = pygame.image.load(os.path.join(base_path, 'cutscene1.png'))
+cutscene1 = pygame.image.load(os.path.join(ASSET_DIR, 'cutscene1.png'))
 cutscene1 = pygame.transform.scale(cutscene1, (SCREEN_WIDTH, SCREEN_HEIGHT))
-cutscene2 = pygame.image.load(os.path.join(base_path, 'cutscene2.png'))
+cutscene2 = pygame.image.load(os.path.join(ASSET_DIR, 'cutscene2.png'))
 cutscene2 = pygame.transform.scale(cutscene2, (SCREEN_WIDTH, SCREEN_HEIGHT))
-cutscene3 = pygame.image.load(os.path.join(base_path, 'cutscene3.png'))
+cutscene3 = pygame.image.load(os.path.join(ASSET_DIR, 'cutscene3.png'))
 cutscene3 = pygame.transform.scale(cutscene3, (SCREEN_WIDTH, SCREEN_HEIGHT))
-cutscene4 = pygame.image.load(os.path.join(base_path, 'cutscene4.png'))
+cutscene4 = pygame.image.load(os.path.join(ASSET_DIR, 'cutscene4.png'))
 cutscene4 = pygame.transform.scale(cutscene4, (SCREEN_WIDTH, SCREEN_HEIGHT))
-cutscene5 = pygame.image.load(os.path.join(base_path, 'cutscene5.png'))
+cutscene5 = pygame.image.load(os.path.join(ASSET_DIR, 'cutscene5.png'))
 cutscene5 = pygame.transform.scale(cutscene5, (SCREEN_WIDTH, SCREEN_HEIGHT))
-cutscene6 = pygame.image.load(os.path.join(base_path, 'cutscene6.png'))
+cutscene6 = pygame.image.load(os.path.join(ASSET_DIR, 'cutscene6.png'))
 cutscene6 = pygame.transform.scale(cutscene6, (SCREEN_WIDTH, SCREEN_HEIGHT))
-cutscene7 = pygame.image.load(os.path.join(base_path, 'cutscene7.png'))
+cutscene7 = pygame.image.load(os.path.join(ASSET_DIR, 'cutscene7.png'))
 cutscene7 = pygame.transform.scale(cutscene7, (SCREEN_WIDTH, SCREEN_HEIGHT))
-cutscene8 = pygame.image.load(os.path.join(base_path, 'cutscene8.png'))
+cutscene8 = pygame.image.load(os.path.join(ASSET_DIR, 'cutscene8.png'))
 cutscene8 = pygame.transform.scale(cutscene8, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
 # Load audio
-mixer_path = os.path.join(base_path, "voiceover1.ogg")
+mixer_path = os.path.join(ASSET_DIR, "voiceover1.ogg")
 pygame.mixer.music.load(mixer_path)
 pygame.mixer.music.set_volume(0.7)
 
