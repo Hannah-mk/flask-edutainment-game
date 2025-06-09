@@ -28,9 +28,8 @@ async def main():
 
     text_color = WHITE
 
-    font = pygame.font.SysFont(None, 32)      # bumped up from 28
+    font = pygame.font.SysFont(None, 32)     
 
-    # --- Load Assets ---
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     ASSET_DIR = os.path.join(BASE_DIR, "assets")
     try:
