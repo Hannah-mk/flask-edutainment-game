@@ -3,7 +3,7 @@ import os
 import random
 from typing import List
 import asyncio
-#from js import window
+from js import window
 
 "=== MINIGAME 1 ==="
 
@@ -254,7 +254,7 @@ class Game:
             # Check level completion
             if abs(self.bg_scroll) >= abs(self.finish_line.rect.y - self.FLOOR_Y):
                 self.level_complete = True
-                #window.parent.postMessage("game_complete_minigame1", "*")
+                window.parent.postMessage("game_complete_minigame1", "*")
         
         self.all_sprites.update()
 
