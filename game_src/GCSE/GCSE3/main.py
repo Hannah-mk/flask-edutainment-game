@@ -1,8 +1,9 @@
-from js import window
+#from js import window
 import pygame
 import sys
 import time
 import asyncio
+import os
 
 pygame.init()
 
