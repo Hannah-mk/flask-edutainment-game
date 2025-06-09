@@ -74,11 +74,11 @@ async def main():
         if all(user_answers[i].lower() == correct_answers[i].lower() for i in range(6)):
             show_message("Correct!", "You're an intelligent lifeform and worthy of being kept alive!")
             try:
-                # For pygbag/web deployment
+                
                 import js
                 js.postMessage("level_complete_gcse7")
             except:
-                # For local testing
+                
                 pass
         else:
             show_message("Incorrect!", "You will now be terminated!")
@@ -106,9 +106,8 @@ async def main():
         screen.blit(submit_text, (submit_button.x + 20, submit_button.y + 5))
 
         pygame.display.flip()
-        await asyncio.sleep(0)  # Essential for pygbag
+        await asyncio.sleep(0)  
         clock.tick(60)
 
-# This is the entry point for pygbag
 if __name__ == "__main__":
     asyncio.run(main())
