@@ -40,7 +40,7 @@
     <div class="minigame-tiles">
       {% for i in range(1, 6) %}
       <a class="tile" href="/levels/minigames/minigame{{ i }}">
-        <img src="{{ url_for('static', filename='game_screenshots/Minigame/minigame' ~ i ~ '.png') }}" alt="Minigame {{ i }} Preview">
+        <img src="{{ url_for('static', filename='game_screenshots/Minigames/minigame' ~ i ~ '.png') }}" alt="Minigame {{ i }} Preview">
         <div class="play-overlay">Play Minigame {{ i }}</div>
       </a>       
       {% endfor %}
